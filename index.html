@@ -118,6 +118,32 @@
             background-color: #45a049;
         }
         
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+        
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        
+        .success-message {
+            background-color: #d4edda;
+            color: #155724;
+            padding: 10px;
+            border: 1px solid #c3e6cb;
+            border-radius: 4px;
+            margin-bottom: 15px;
+            display: none;
+        }
+        
         .full-width {
             grid-column: 1 / -1;
         }
@@ -133,6 +159,20 @@
             border-radius: 5px;
             padding: 15px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .ride-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+        
+        .ride-card.car-type {
+            border-left: 4px solid #4CAF50;
+        }
+        
+        .ride-card.passenger-type {
+            border-left: 4px solid #ff5100;
         }
         
         .ride-header {
@@ -147,6 +187,10 @@
             font-size: 1.2rem;
             font-weight: bold;
             color: #4CAF50;
+        }
+        
+        .ride-title.passenger {
+            color: #ff5100;
         }
         
         .ride-date {
@@ -213,13 +257,14 @@
         </header>
         
         <div class="tabs">
-            <div class="tab active" onclick="switchTab('publish')">发布行程</div>
+            <div class="tab active" onclick="switchTab('publish')">车找人</div>
+            <div class="tab" onclick="switchTab('find-car')">人找车</div>
             <div class="tab" onclick="switchTab('find')">查找行程</div>
             <div class="tab" onclick="switchTab('my-rides')">我的行程</div>
         </div>
         
         <div id="publish" class="tab-content active">
-            <h2>发布顺风车信息</h2>
+            <h2>发布车找人信息</h2>
             <form id="ride-form">
                 <div class="form-group">
                     <label for="departure">出发地</label>
@@ -273,7 +318,67 @@
                 </div>
                 
                 <div class="form-group full-width">
-                    <button type="submit">发布行程</button>
+                    <button type="submit">发布车找人信息</button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="find-car" class="tab-content">
+            <h2>发布人找车信息</h2>
+            <form id="passenger-form">
+                <div class="form-group">
+                    <label for="passenger-departure">出发地</label>
+                    <input type="text" id="passenger-departure" placeholder="例如: 李家村小学" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passenger-destination">目的地</label>
+                    <input type="text" id="passenger-destination" placeholder="例如: 县城医院" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passenger-date">出发日期</label>
+                    <input type="date" id="passenger-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passenger-time">出发时间</label>
+                    <input type="time" id="passenger-time" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passenger-count">乘车人数</label>
+                    <select id="passenger-count" required>
+                        <option value="">请选择</option>
+                        <option value="1">1人</option>
+                        <option value="2">2人</option>
+                        <option value="3">3人</option>
+                        <option value="4">4人</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passenger-budget">预算费用</label>
+                    <input type="number" id="passenger-budget" placeholder="例如: 15" required>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="passenger-notes">特别需求</label>
+                    <textarea id="passenger-notes" rows="3" placeholder="例如: 有儿童座椅需求，有大件行李"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passenger-name">联系人</label>
+                    <input type="text" id="passenger-name" placeholder="您的姓名" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="passenger-phone">联系电话</label>
+                    <input type="tel" id="passenger-phone" placeholder="您的手机号码" required>
+                </div>
+                
+                <div class="form-group full-width">
+                    <button type="submit">发布人找车信息</button>
                 </div>
             </form>
         </div>
@@ -282,7 +387,7 @@
             <h2>查找顺风车</h2>
             
             <div class="search-form">
-                <input type="text" id="search-input" placeholder="搜索出发地或目的地...">
+                <input type="text" id="search-input" placeholder="搜索出发地或目的地..." onkeypress="handleSearchKeyPress(event)">
                 <button onclick="searchRides()"><i class="fas fa-search"></i> 搜索</button>
             </div>
             
@@ -317,7 +422,18 @@
             localStorage.setItem('carpoolRides', JSON.stringify(rides));
         }
         
+        // 人找车数据存储
+        function getPassengers() {
+            const stored = localStorage.getItem('carpoolPassengers');
+            return stored ? JSON.parse(stored) : [];
+        }
+        
+        function savePassengers(passengers) {
+            localStorage.setItem('carpoolPassengers', JSON.stringify(passengers));
+        }
+        
         let rides = getRides();
+        let passengers = getPassengers();
         
         // 切换标签页
         function switchTab(tabId) {
@@ -339,7 +455,7 @@
             
             // 如果是查找行程标签，刷新列表
             if (tabId === 'find') {
-                displayRides(rides);
+                displayRides(rides, passengers);
             }
             
             // 如果是我的行程标签，刷新列表
@@ -375,17 +491,57 @@
             this.reset();
             
             // 显示成功消息
-            alert('行程发布成功！数据已保存到本地存储。');
+            showSuccessMessage('车找人信息发布成功！数据已保存到本地存储。');
             
             // 切换到我的行程标签
-            document.querySelector('.tab[onclick="switchTab(\'my-rides\')"]').click();
+            setTimeout(() => {
+                document.querySelector('.tab[onclick="switchTab(\'my-rides\')"]').click();
+            }, 1500);
         });
         
-        // 显示行程列表
-        function displayRides(ridesToDisplay) {
+        // 人找车表单提交
+        document.getElementById('passenger-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const passenger = {
+                id: Date.now(),
+                departure: document.getElementById('passenger-departure').value,
+                destination: document.getElementById('passenger-destination').value,
+                date: document.getElementById('passenger-date').value,
+                time: document.getElementById('passenger-time').value,
+                passengerCount: document.getElementById('passenger-count').value,
+                budget: document.getElementById('passenger-budget').value,
+                notes: document.getElementById('passenger-notes').value,
+                name: document.getElementById('passenger-name').value,
+                phone: document.getElementById('passenger-phone').value,
+                timestamp: new Date().toISOString(),
+                type: 'passenger'
+            };
+            
+            // 添加到人找车列表并保存到本地存储
+            passengers.push(passenger);
+            savePassengers(passengers);
+            
+            // 清空表单
+            this.reset();
+            
+            // 显示成功消息
+            showSuccessMessage('人找车信息发布成功！数据已保存到本地存储。');
+            
+            // 切换到查找行程标签
+            setTimeout(() => {
+                document.querySelector('.tab[onclick="switchTab(\'find\')"]').click();
+            }, 1500);
+        });
+        
+        // 显示行程列表（包含车找人和人找车）
+        function displayRides(ridesToDisplay, passengersToDisplay) {
             const container = document.getElementById('rides-container');
             
-            if (ridesToDisplay.length === 0) {
+            const allItems = [...ridesToDisplay, ...passengersToDisplay];
+            
+            if (allItems.length === 0) {
                 container.innerHTML = `
                     <div class="no-rides">
                         <i class="fas fa-car fa-3x" style="color: #ddd; margin-bottom: 15px;"></i>
@@ -397,14 +553,18 @@
             
             container.innerHTML = '';
             
+            // 显示车找人信息
             ridesToDisplay.forEach(ride => {
                 const rideDate = new Date(ride.date).toLocaleDateString('zh-CN');
                 const rideTime = ride.time.substring(0, 5);
                 
                 container.innerHTML += `
-                    <div class="ride-card">
+                    <div class="ride-card car-type">
                         <div class="ride-header">
-                            <div class="ride-title">${ride.departure} → ${ride.destination}</div>
+                            <div class="ride-title">
+                                <i class="fas fa-car"></i>
+                                车找人：${ride.departure} → ${ride.destination}
+                            </div>
                             <div class="ride-date">${rideDate} ${rideTime}</div>
                         </div>
                         <div class="ride-details">
@@ -429,16 +589,56 @@
                     </div>
                 `;
             });
+            
+            // 显示人找车信息
+            passengersToDisplay.forEach(passenger => {
+                const passengerDate = new Date(passenger.date).toLocaleDateString('zh-CN');
+                const passengerTime = passenger.time.substring(0, 5);
+                
+                container.innerHTML += `
+                    <div class="ride-card passenger-type">
+                        <div class="ride-header">
+                            <div class="ride-title passenger">
+                                <i class="fas fa-user-friends"></i>
+                                人找车：${passenger.departure} → ${passenger.destination}
+                            </div>
+                            <div class="ride-date">${passengerDate} ${passengerTime}</div>
+                        </div>
+                        <div class="ride-details">
+                            <div class="ride-detail">
+                                <i class="fas fa-user-friends"></i>
+                                <span>${passenger.passengerCount}人乘车</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>预算${passenger.budget}元/人</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-user"></i>
+                                <span>${passenger.name}</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-phone"></i>
+                                <span>${passenger.phone}</span>
+                            </div>
+                        </div>
+                        ${passenger.notes ? `<div class="ride-contact">特别需求: ${passenger.notes}</div>` : ''}
+                    </div>
+                `;
+            });
         }
         
         // 显示我的行程
         function displayMyRides() {
             const container = document.getElementById('my-rides-container');
             
-            // 这里简单模拟，实际应用中应该根据用户ID筛选
-            const myRides = rides.slice(0, 2); // 只显示前两条作为示例
+            // 显示所有发布的车找人信息（这里简单模拟，实际应用中应该根据用户ID筛选）
+            const myRides = rides.slice(-3); // 显示最近3条车找人信息
+            const myPassengers = passengers.slice(-3); // 显示最近3条人找车信息
             
-            if (myRides.length === 0) {
+            const allMyItems = [...myRides, ...myPassengers];
+            
+            if (allMyItems.length === 0) {
                 container.innerHTML = `
                     <div class="no-rides">
                         <i class="fas fa-user fa-3x" style="color: #ddd; margin-bottom: 15px;"></i>
@@ -450,14 +650,18 @@
             
             container.innerHTML = '';
             
+            // 显示车找人信息
             myRides.forEach(ride => {
                 const rideDate = new Date(ride.date).toLocaleDateString('zh-CN');
                 const rideTime = ride.time.substring(0, 5);
                 
                 container.innerHTML += `
-                    <div class="ride-card">
+                    <div class="ride-card car-type">
                         <div class="ride-header">
-                            <div class="ride-title">${ride.departure} → ${ride.destination}</div>
+                            <div class="ride-title">
+                                <i class="fas fa-car"></i>
+                                车找人：${ride.departure} → ${ride.destination}
+                            </div>
                             <div class="ride-date">${rideDate} ${rideTime}</div>
                         </div>
                         <div class="ride-details">
@@ -479,7 +683,47 @@
                             </div>
                         </div>
                         ${ride.notes ? `<div class="ride-contact">备注: ${ride.notes}</div>` : ''}
-                        <button style="margin-top: 10px; width: 100%;" onclick="deleteRide(${ride.id})">
+                        <button class="delete-btn" onclick="deleteRide(${ride.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+            });
+            
+            // 显示人找车信息
+            myPassengers.forEach(passenger => {
+                const passengerDate = new Date(passenger.date).toLocaleDateString('zh-CN');
+                const passengerTime = passenger.time.substring(0, 5);
+                
+                container.innerHTML += `
+                    <div class="ride-card passenger-type">
+                        <div class="ride-header">
+                            <div class="ride-title passenger">
+                                <i class="fas fa-user-friends"></i>
+                                人找车：${passenger.departure} → ${passenger.destination}
+                            </div>
+                            <div class="ride-date">${passengerDate} ${passengerTime}</div>
+                        </div>
+                        <div class="ride-details">
+                            <div class="ride-detail">
+                                <i class="fas fa-user-friends"></i>
+                                <span>${passenger.passengerCount}人乘车</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>预算${passenger.budget}元/人</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-user"></i>
+                                <span>${passenger.name}</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-phone"></i>
+                                <span>${passenger.phone}</span>
+                            </div>
+                        </div>
+                        ${passenger.notes ? `<div class="ride-contact">特别需求: ${passenger.notes}</div>` : ''}
+                        <button class="delete-btn" onclick="deletePassenger(${passenger.id})">
                             <i class="fas fa-trash"></i> 删除
                         </button>
                     </div>
@@ -487,28 +731,89 @@
             });
         }
         
-        // 搜索行程
+        // 处理搜索框回车事件
+        function handleSearchKeyPress(event) {
+            if (event.key === 'Enter') {
+                searchRides();
+            }
+        }
+        
+        // 搜索行程（同时搜索车找人和人找车）
         function searchRides() {
             const searchTerm = document.getElementById('search-input').value.toLowerCase();
             
             if (!searchTerm) {
-                displayRides(rides);
+                displayRides(rides, passengers);
                 return;
             }
             
             const filteredRides = rides.filter(ride => 
                 ride.departure.toLowerCase().includes(searchTerm) || 
-                ride.destination.toLowerCase().includes(searchTerm)
+                ride.destination.toLowerCase().includes(searchTerm) ||
+                ride.name.toLowerCase().includes(searchTerm)
             );
             
-            displayRides(filteredRides);
+            const filteredPassengers = passengers.filter(passenger => 
+                passenger.departure.toLowerCase().includes(searchTerm) || 
+                passenger.destination.toLowerCase().includes(searchTerm) ||
+                passenger.name.toLowerCase().includes(searchTerm)
+            );
+            
+            displayRides(filteredRides, filteredPassengers);
+            
+            // 显示搜索结果统计
+            const totalResults = filteredRides.length + filteredPassengers.length;
+            if (searchTerm && totalResults > 0) {
+                showSuccessMessage(`找到 ${totalResults} 条相关行程信息`);
+            } else if (searchTerm && totalResults === 0) {
+                showSuccessMessage('没有找到匹配的行程信息');
+            }
+        }
+        
+        // 显示成功消息
+        function showSuccessMessage(message) {
+            // 在页面顶部显示成功消息
+            const successDiv = document.createElement('div');
+            successDiv.className = 'success-message';
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            successDiv.style.position = 'fixed';
+            successDiv.style.top = '20px';
+            successDiv.style.left = '50%';
+            successDiv.style.transform = 'translateX(-50%)';
+            successDiv.style.zIndex = '1000';
+            successDiv.style.padding = '15px 30px';
+            successDiv.style.borderRadius = '5px';
+            successDiv.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+            
+            document.body.appendChild(successDiv);
+            
+            // 3秒后自动移除
+            setTimeout(() => {
+                if (successDiv.parentNode) {
+                    successDiv.parentNode.removeChild(successDiv);
+                }
+            }, 3000);
         }
         
         // 删除行程
         function deleteRide(id) {
-            rides = rides.filter(ride => ride.id !== id);
-            saveRides(rides);
-            displayMyRides();
+            if (confirm('确定要删除这条行程吗？')) {
+                rides = rides.filter(ride => ride.id !== id);
+                saveRides(rides);
+                displayMyRides();
+                showSuccessMessage('行程删除成功！');
+            }
+        }
+        
+        // 删除人找车信息
+        function deletePassenger(id) {
+            if (confirm('确定要删除这条人找车信息吗？')) {
+                passengers = passengers.filter(passenger => passenger.id !== id);
+                savePassengers(passengers);
+                displayMyRides();
+                showSuccessMessage('人找车信息删除成功！');
+            }
         }
         
         // 初始化一些示例数据
@@ -519,29 +824,91 @@
                         id: 1,
                         departure: "李家村",
                         destination: "县城中心",
-                        date: "2023-06-15",
+                        date: "2024-06-15",
                         time: "08:30",
                         seats: "3",
                         price: "15",
                         notes: "可接送，后备箱空间大",
                         name: "张师傅",
                         phone: "13800138000",
-                        timestamp: "2023-06-10T08:00:00Z"
+                        timestamp: "2024-06-10T08:00:00Z"
                     },
                     {
                         id: 2,
                         departure: "王家镇",
                         destination: "市里火车站",
-                        date: "2023-06-16",
+                        date: "2024-06-16",
                         time: "07:00",
                         seats: "2",
                         price: "25",
                         notes: "走高速，约1小时到达",
                         name: "王师傅",
                         phone: "13900139000",
-                        timestamp: "2023-06-11T09:30:00Z"
+                        timestamp: "2024-06-11T09:30:00Z"
+                    },
+                    {
+                        id: 3,
+                        departure: "周家庄",
+                        destination: "县城农贸市场",
+                        date: "2024-06-17",
+                        time: "06:30",
+                        seats: "4",
+                        price: "8",
+                        notes: "每天往返，可提前预约",
+                        name: "周师傅",
+                        phone: "13500135000",
+                        timestamp: "2024-06-12T07:15:00Z"
                     }
                 ];
+                saveRides(rides);
+            }
+            
+            if (passengers.length === 0) {
+                passengers = [
+                    {
+                        id: 1001,
+                        departure: "赵家村",
+                        destination: "县城医院",
+                        date: "2024-06-18",
+                        time: "09:00",
+                        passengerCount: "2",
+                        budget: "20",
+                        notes: "有老人同行，需要提前安排",
+                        name: "赵先生",
+                        phone: "13600136000",
+                        timestamp: "2024-06-13T10:00:00Z",
+                        type: 'passenger'
+                    },
+                    {
+                        id: 1002,
+                        departure: "孙家屯",
+                        destination: "县城汽车站",
+                        date: "2024-06-19",
+                        time: "14:30",
+                        passengerCount: "3",
+                        budget: "12",
+                        notes: "有大件行李，求拼车",
+                        name: "孙女士",
+                        phone: "13700137000",
+                        timestamp: "2024-06-14T11:30:00Z",
+                        type: 'passenger'
+                    },
+                    {
+                        id: 1003,
+                        departure: "钱家村",
+                        destination: "市中心商场",
+                        date: "2024-06-20",
+                        time: "10:00",
+                        passengerCount: "1",
+                        budget: "30",
+                        notes: "购物，希望车空间大一些",
+                        name: "钱同学",
+                        phone: "13800138001",
+                        timestamp: "2024-06-15T12:45:00Z",
+                        type: 'passenger'
+                    }
+                ];
+                savePassengers(passengers);
             }
         }
         
