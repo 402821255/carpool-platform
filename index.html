@@ -144,6 +144,37 @@
             display: none;
         }
         
+        .countdown-badge {
+            background-color: #ffc107;
+            color: #000;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-left: 10px;
+            display: inline-block;
+        }
+        
+        .countdown-urgent {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        .countdown-expired {
+            background-color: #6c757d;
+            color: white;
+        }
+        
+        .expiry-notice {
+            background-color: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 4px;
+            padding: 8px 12px;
+            margin-top: 10px;
+            font-size: 0.9rem;
+            color: #856404;
+        }
+        
         .full-width {
             grid-column: 1 / -1;
         }
@@ -265,6 +296,10 @@
         
         <div id="publish" class="tab-content active">
             <h2>发布车找人信息</h2>
+            <div class="expiry-notice">
+                <i class="fas fa-info-circle"></i>
+                <strong>重要提醒：</strong>发布的行程信息在出发时间过后将自动删除，请确保信息准确。
+            </div>
             <form id="ride-form">
                 <div class="form-group">
                     <label for="departure">出发地</label>
@@ -325,6 +360,10 @@
         
         <div id="find-car" class="tab-content">
             <h2>发布人找车信息</h2>
+            <div class="expiry-notice">
+                <i class="fas fa-info-circle"></i>
+                <strong>重要提醒：</strong>发布的乘车需求在出发时间过后将自动删除，请确保信息准确。
+            </div>
             <form id="passenger-form">
                 <div class="form-group">
                     <label for="passenger-departure">出发地</label>
@@ -435,6 +474,59 @@
         let rides = getRides();
         let passengers = getPassengers();
         
+        // 检查行程是否过期（超过出发时间）
+        function isExpired(item) {
+            const itemDateTime = new Date(item.date + ' ' + item.time);
+            const currentDateTime = new Date();
+            return itemDateTime < currentDateTime;
+        }
+        
+        // 自动清理过期数据
+        function cleanExpiredData() {
+            // 清理过期的车找人数据
+            rides = rides.filter(ride => !isExpired(ride));
+            // 清理过期的人找车数据
+            passengers = passengers.filter(passenger => !isExpired(passenger));
+            // 保存清理后的数据
+            saveRides(rides);
+            savePassengers(passengers);
+        }
+        
+        // 获取倒计时显示文本
+        function getCountdownText(item) {
+            const itemDateTime = new Date(item.date + ' ' + item.time);
+            const currentDateTime = new Date();
+            const diffTime = itemDateTime - currentDateTime;
+            
+            if (diffTime < 0) {
+                return { text: '已过期', class: 'countdown-expired' };
+            }
+            
+            const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
+            const diffDays = Math.floor(diffHours / 24);
+            const remainingHours = diffHours % 24;
+            
+            if (diffDays === 0) {
+                if (diffHours === 0) {
+                    return { text: '即将过期', class: 'countdown-urgent' };
+                } else if (diffHours <= 2) {
+                    return { text: `剩余${diffHours}小时`, class: 'countdown-urgent' };
+                } else {
+                    return { text: `剩余${diffHours}小时`, class: 'countdown-badge' };
+                }
+            } else if (diffDays === 1) {
+                return { text: `明天${remainingHours > 0 ? remainingHours + '点' : '出发'}`, class: 'countdown-badge' };
+            } else {
+                return { text: `${diffDays}天后出发`, class: 'countdown-badge' };
+            }
+        }
+        
+        // 获取有效的行程数据（自动清理过期数据）
+        function getValidItems(items) {
+            cleanExpiredData();
+            return items.filter(item => !isExpired(item));
+        }
+        
         // 切换标签页
         function switchTab(tabId) {
             // 隐藏所有标签内容
@@ -539,13 +631,18 @@
         function displayRides(ridesToDisplay, passengersToDisplay) {
             const container = document.getElementById('rides-container');
             
-            const allItems = [...ridesToDisplay, ...passengersToDisplay];
+            // 自动清理过期数据并获取有效行程
+            const validRides = ridesToDisplay.length === rides.length ? getValidItems(ridesToDisplay) : ridesToDisplay;
+            const validPassengers = passengersToDisplay.length === passengers.length ? getValidItems(passengersToDisplay) : passengersToDisplay;
+            
+            const allItems = [...validRides, ...validPassengers];
             
             if (allItems.length === 0) {
                 container.innerHTML = `
                     <div class="no-rides">
                         <i class="fas fa-car fa-3x" style="color: #ddd; margin-bottom: 15px;"></i>
-                        <p>没有找到匹配的行程</p>
+                        <p>暂无可用行程，请稍后再试或发布您的行程</p>
+                        <p style="font-size: 0.9rem; color: #6c757d;">过期行程已自动清理</p>
                     </div>
                 `;
                 return;
@@ -557,6 +654,7 @@
             ridesToDisplay.forEach(ride => {
                 const rideDate = new Date(ride.date).toLocaleDateString('zh-CN');
                 const rideTime = ride.time.substring(0, 5);
+                const countdown = getCountdownText(ride);
                 
                 container.innerHTML += `
                     <div class="ride-card car-type">
@@ -564,6 +662,7 @@
                             <div class="ride-title">
                                 <i class="fas fa-car"></i>
                                 车找人：${ride.departure} → ${ride.destination}
+                                <span class="${countdown.class}">${countdown.text}</span>
                             </div>
                             <div class="ride-date">${rideDate} ${rideTime}</div>
                         </div>
@@ -594,6 +693,7 @@
             passengersToDisplay.forEach(passenger => {
                 const passengerDate = new Date(passenger.date).toLocaleDateString('zh-CN');
                 const passengerTime = passenger.time.substring(0, 5);
+                const countdown = getCountdownText(passenger);
                 
                 container.innerHTML += `
                     <div class="ride-card passenger-type">
@@ -601,6 +701,7 @@
                             <div class="ride-title passenger">
                                 <i class="fas fa-user-friends"></i>
                                 人找车：${passenger.departure} → ${passenger.destination}
+                                <span class="${countdown.class}">${countdown.text}</span>
                             </div>
                             <div class="ride-date">${passengerDate} ${passengerTime}</div>
                         </div>
@@ -632,17 +733,17 @@
         function displayMyRides() {
             const container = document.getElementById('my-rides-container');
             
-            // 显示所有发布的车找人信息（这里简单模拟，实际应用中应该根据用户ID筛选）
-            const myRides = rides.slice(-3); // 显示最近3条车找人信息
-            const myPassengers = passengers.slice(-3); // 显示最近3条人找车信息
+            // 自动清理过期数据
+            cleanExpiredData();
             
-            const allMyItems = [...myRides, ...myPassengers];
+            const allMyItems = [...rides, ...passengers];
             
             if (allMyItems.length === 0) {
                 container.innerHTML = `
                     <div class="no-rides">
                         <i class="fas fa-user fa-3x" style="color: #ddd; margin-bottom: 15px;"></i>
                         <p>您还没有发布过行程</p>
+                        <p style="font-size: 0.9rem; color: #6c757d;">过期行程已自动清理</p>
                     </div>
                 `;
                 return;
@@ -651,9 +752,10 @@
             container.innerHTML = '';
             
             // 显示车找人信息
-            myRides.forEach(ride => {
+            rides.forEach(ride => {
                 const rideDate = new Date(ride.date).toLocaleDateString('zh-CN');
                 const rideTime = ride.time.substring(0, 5);
+                const countdown = getCountdownText(ride);
                 
                 container.innerHTML += `
                     <div class="ride-card car-type">
@@ -661,6 +763,7 @@
                             <div class="ride-title">
                                 <i class="fas fa-car"></i>
                                 车找人：${ride.departure} → ${ride.destination}
+                                <span class="${countdown.class}">${countdown.text}</span>
                             </div>
                             <div class="ride-date">${rideDate} ${rideTime}</div>
                         </div>
@@ -691,9 +794,10 @@
             });
             
             // 显示人找车信息
-            myPassengers.forEach(passenger => {
+            passengers.forEach(passenger => {
                 const passengerDate = new Date(passenger.date).toLocaleDateString('zh-CN');
                 const passengerTime = passenger.time.substring(0, 5);
+                const countdown = getCountdownText(passenger);
                 
                 container.innerHTML += `
                     <div class="ride-card passenger-type">
@@ -701,6 +805,7 @@
                             <div class="ride-title passenger">
                                 <i class="fas fa-user-friends"></i>
                                 人找车：${passenger.departure} → ${passenger.destination}
+                                <span class="${countdown.class}">${countdown.text}</span>
                             </div>
                             <div class="ride-date">${passengerDate} ${passengerTime}</div>
                         </div>
@@ -816,95 +921,135 @@
             }
         }
         
+
+        
         // 初始化一些示例数据
         function initSampleData() {
             if (rides.length === 0) {
+                // 获取当前日期和时间
+                const now = new Date();
+                const today = new Date(now);
+                today.setHours(today.getHours() + 2); // 2小时后
+                const todayStr = today.toISOString().split('T')[0];
+                const todayTime = today.toTimeString().substring(0, 5);
+                
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(9, 0); // 明天9点
+                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                const tomorrowTime = tomorrow.toTimeString().substring(0, 5);
+                
+                const dayAfter = new Date(now);
+                dayAfter.setDate(dayAfter.getDate() + 2);
+                dayAfter.setHours(14, 30); // 后天14:30
+                const dayAfterStr = dayAfter.toISOString().split('T')[0];
+                const dayAfterTime = dayAfter.toTimeString().substring(0, 5);
+                
                 rides = [
                     {
                         id: 1,
                         departure: "李家村",
                         destination: "县城中心",
-                        date: "2024-06-15",
-                        time: "08:30",
+                        date: todayStr,
+                        time: todayTime,
                         seats: "3",
                         price: "15",
                         notes: "可接送，后备箱空间大",
                         name: "张师傅",
                         phone: "13800138000",
-                        timestamp: "2024-06-10T08:00:00Z"
+                        timestamp: now.toISOString()
                     },
                     {
                         id: 2,
                         departure: "王家镇",
                         destination: "市里火车站",
-                        date: "2024-06-16",
-                        time: "07:00",
+                        date: tomorrowStr,
+                        time: tomorrowTime,
                         seats: "2",
                         price: "25",
                         notes: "走高速，约1小时到达",
                         name: "王师傅",
                         phone: "13900139000",
-                        timestamp: "2024-06-11T09:30:00Z"
+                        timestamp: now.toISOString()
                     },
                     {
                         id: 3,
                         departure: "周家庄",
                         destination: "县城农贸市场",
-                        date: "2024-06-17",
-                        time: "06:30",
+                        date: dayAfterStr,
+                        time: dayAfterTime,
                         seats: "4",
                         price: "8",
                         notes: "每天往返，可提前预约",
                         name: "周师傅",
                         phone: "13500135000",
-                        timestamp: "2024-06-12T07:15:00Z"
+                        timestamp: now.toISOString()
                     }
                 ];
                 saveRides(rides);
             }
             
             if (passengers.length === 0) {
+                // 使用当前日期和时间计算未来几天的日期
+                const now = new Date();
+                const today = new Date(now);
+                today.setHours(today.getHours() + 3); // 3小时后
+                const todayStr = today.toISOString().split('T')[0];
+                const todayTime = today.toTimeString().substring(0, 5);
+                
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(15, 0); // 明天15点
+                const tomorrowStr = tomorrow.toISOString().split('T')[0];
+                const tomorrowTime = tomorrow.toTimeString().substring(0, 5);
+                
+                const dayAfter = new Date(now);
+                dayAfter.setDate(dayAfter.getDate() + 2);
+                dayAfter.setHours(10, 0); // 后天10点
+                const dayAfterStr = dayAfter.toISOString().split('T')[0];
+                const dayAfterTime = dayAfter.toTimeString().substring(0, 5);
+                
                 passengers = [
                     {
                         id: 1001,
                         departure: "赵家村",
                         destination: "县城医院",
-                        date: "2024-06-18",
-                        time: "09:00",
+                        date: todayStr,
+                        time: todayTime,
                         passengerCount: "2",
                         budget: "20",
                         notes: "有老人同行，需要提前安排",
                         name: "赵先生",
                         phone: "13600136000",
-                        timestamp: "2024-06-13T10:00:00Z",
+                        timestamp: now.toISOString(),
                         type: 'passenger'
                     },
                     {
                         id: 1002,
                         departure: "孙家屯",
                         destination: "县城汽车站",
-                        date: "2024-06-19",
-                        time: "14:30",
+                        date: tomorrowStr,
+                        time: tomorrowTime,
                         passengerCount: "3",
                         budget: "12",
                         notes: "有大件行李，求拼车",
                         name: "孙女士",
                         phone: "13700137000",
-                        timestamp: "2024-06-14T11:30:00Z",
+                        timestamp: now.toISOString(),
                         type: 'passenger'
                     },
                     {
                         id: 1003,
                         departure: "钱家村",
                         destination: "市中心商场",
-                        date: "2024-06-20",
-                        time: "10:00",
+                        date: dayAfterStr,
+                        time: dayAfterTime,
                         passengerCount: "1",
                         budget: "30",
                         notes: "购物，希望车空间大一些",
                         name: "钱同学",
                         phone: "13800138001",
-                        timestamp: "2024-06-15T12:45:00Z",
+                        timestamp: now.toISOString(),
                         type: 'passenger'
                     }
                 ];
