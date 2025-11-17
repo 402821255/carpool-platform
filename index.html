@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>湘M顺风车发布平台</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #ff5100;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 10px 20px;
+            cursor: pointer;
+            background-color: #f1f1f1;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+        }
+        
+        .tab.active {
+            background-color: white;
+            border-bottom: 1px solid white;
+            margin-bottom: -1px;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 5px 5px 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+        
+        .form-group {
+            margin-bottom: 15px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        
+        button {
+            background-color: #be0000;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.3s;
+        }
+        
+        button:hover {
+            background-color: #45a049;
+        }
+        
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        
+        .rides-list {
+            display: grid;
+            gap: 15px;
+        }
+        
+        .ride-card {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .ride-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .ride-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        
+        .ride-date {
+            color: #777;
+        }
+        
+        .ride-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .ride-detail {
+            display: flex;
+            align-items: center;
+        }
+        
+        .ride-detail i {
+            margin-right: 8px;
+            color: #4CAF50;
+        }
+        
+        .ride-contact {
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px dashed #ddd;
+            color: #555;
+        }
+        
+        .search-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .search-form input {
+            flex: 1;
+        }
+        
+        .no-rides {
+            text-align: center;
+            padding: 40px;
+            color: #777;
+        }
+        
+        @media (max-width: 768px) {
+            form {
+                grid-template-columns: 1fr;
+            }
+            
+            .ride-details {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>湘M顺风车发布平台</h1>
+            <p class="subtitle">绿色出行 · 共享资源 · 便利生活</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('publish')">发布行程</div>
+            <div class="tab" onclick="switchTab('find')">查找行程</div>
+            <div class="tab" onclick="switchTab('my-rides')">我的行程</div>
+        </div>
+        
+        <div id="publish" class="tab-content active">
+            <h2>发布顺风车信息</h2>
+            <form id="ride-form">
+                <div class="form-group">
+                    <label for="departure">出发地</label>
+                    <input type="text" id="departure" placeholder="例如: 王家村村委会" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="destination">目的地</label>
+                    <input type="text" id="destination" placeholder="例如: 县城汽车站" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="date">出发日期</label>
+                    <input type="date" id="date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="time">出发时间</label>
+                    <input type="time" id="time" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="seats">可用座位</label>
+                    <select id="seats" required>
+                        <option value="">请选择</option>
+                        <option value="1">1个座位</option>
+                        <option value="2">2个座位</option>
+                        <option value="3">3个座位</option>
+                        <option value="4">4个座位</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="price">每人费用</label>
+                    <input type="number" id="price" placeholder="例如: 10" required>
+                </div>
+                
+                <div class="form-group full-width">
+                    <label for="notes">备注信息</label>
+                    <textarea id="notes" rows="3" placeholder="例如: 后备箱空间有限，大件行李请提前告知"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="name">联系人</label>
+                    <input type="text" id="name" placeholder="您的姓名" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="phone">联系电话</label>
+                    <input type="tel" id="phone" placeholder="您的手机号码" required>
+                </div>
+                
+                <div class="form-group full-width">
+                    <button type="submit">发布行程</button>
+                </div>
+            </form>
+        </div>
+        
+        <div id="find" class="tab-content">
+            <h2>查找顺风车</h2>
+            
+            <div class="search-form">
+                <input type="text" id="search-input" placeholder="搜索出发地或目的地...">
+                <button onclick="searchRides()"><i class="fas fa-search"></i> 搜索</button>
+            </div>
+            
+            <div id="rides-container">
+                <div class="no-rides">
+                    <i class="fas fa-car fa-3x" style="color: #ddd; margin-bottom: 15px;"></i>
+                    <p>暂无可用行程，请稍后再试或发布您的行程</p>
+                </div>
+            </div>
+        </div>
+        
+        <div id="my-rides" class="tab-content">
+            <h2>我的行程</h2>
+            
+            <div id="my-rides-container">
+                <div class="no-rides">
+                    <i class="fas fa-user fa-3x" style="color: #ddd; margin-bottom: 15px;"></i>
+                    <p>您还没有发布过行程</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 使用localStorage进行持久化数据存储
+        function getRides() {
+            const stored = localStorage.getItem('carpoolRides');
+            return stored ? JSON.parse(stored) : [];
+        }
+        
+        function saveRides(rides) {
+            localStorage.setItem('carpoolRides', JSON.stringify(rides));
+        }
+        
+        let rides = getRides();
+        
+        // 切换标签页
+        function switchTab(tabId) {
+            // 隐藏所有标签内容
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 取消所有标签的活动状态
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // 显示选中的标签内容
+            document.getElementById(tabId).classList.add('active');
+            
+            // 设置选中标签的活动状态
+            event.currentTarget.classList.add('active');
+            
+            // 如果是查找行程标签，刷新列表
+            if (tabId === 'find') {
+                displayRides(rides);
+            }
+            
+            // 如果是我的行程标签，刷新列表
+            if (tabId === 'my-rides') {
+                displayMyRides();
+            }
+        }
+        
+        // 提交表单
+        document.getElementById('ride-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // 获取表单数据
+            const ride = {
+                id: Date.now(),
+                departure: document.getElementById('departure').value,
+                destination: document.getElementById('destination').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                seats: document.getElementById('seats').value,
+                price: document.getElementById('price').value,
+                notes: document.getElementById('notes').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                timestamp: new Date().toISOString()
+            };
+            
+            // 添加到行程列表并保存到本地存储
+            rides.push(ride);
+            saveRides(rides);
+            
+            // 清空表单
+            this.reset();
+            
+            // 显示成功消息
+            alert('行程发布成功！数据已保存到本地存储。');
+            
+            // 切换到我的行程标签
+            document.querySelector('.tab[onclick="switchTab(\'my-rides\')"]').click();
+        });
+        
+        // 显示行程列表
+        function displayRides(ridesToDisplay) {
+            const container = document.getElementById('rides-container');
+            
+            if (ridesToDisplay.length === 0) {
+                container.innerHTML = `
+                    <div class="no-rides">
+                        <i class="fas fa-car fa-3x" style="color: #ddd; margin-bottom: 15px;"></i>
+                        <p>没有找到匹配的行程</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            ridesToDisplay.forEach(ride => {
+                const rideDate = new Date(ride.date).toLocaleDateString('zh-CN');
+                const rideTime = ride.time.substring(0, 5);
+                
+                container.innerHTML += `
+                    <div class="ride-card">
+                        <div class="ride-header">
+                            <div class="ride-title">${ride.departure} → ${ride.destination}</div>
+                            <div class="ride-date">${rideDate} ${rideTime}</div>
+                        </div>
+                        <div class="ride-details">
+                            <div class="ride-detail">
+                                <i class="fas fa-users"></i>
+                                <span>${ride.seats}个座位</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>${ride.price}元/人</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-user"></i>
+                                <span>${ride.name}</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-phone"></i>
+                                <span>${ride.phone}</span>
+                            </div>
+                        </div>
+                        ${ride.notes ? `<div class="ride-contact">备注: ${ride.notes}</div>` : ''}
+                    </div>
+                `;
+            });
+        }
+        
+        // 显示我的行程
+        function displayMyRides() {
+            const container = document.getElementById('my-rides-container');
+            
+            // 这里简单模拟，实际应用中应该根据用户ID筛选
+            const myRides = rides.slice(0, 2); // 只显示前两条作为示例
+            
+            if (myRides.length === 0) {
+                container.innerHTML = `
+                    <div class="no-rides">
+                        <i class="fas fa-user fa-3x" style="color: #ddd; margin-bottom: 15px;"></i>
+                        <p>您还没有发布过行程</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = '';
+            
+            myRides.forEach(ride => {
+                const rideDate = new Date(ride.date).toLocaleDateString('zh-CN');
+                const rideTime = ride.time.substring(0, 5);
+                
+                container.innerHTML += `
+                    <div class="ride-card">
+                        <div class="ride-header">
+                            <div class="ride-title">${ride.departure} → ${ride.destination}</div>
+                            <div class="ride-date">${rideDate} ${rideTime}</div>
+                        </div>
+                        <div class="ride-details">
+                            <div class="ride-detail">
+                                <i class="fas fa-users"></i>
+                                <span>${ride.seats}个座位</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-money-bill-wave"></i>
+                                <span>${ride.price}元/人</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-user"></i>
+                                <span>${ride.name}</span>
+                            </div>
+                            <div class="ride-detail">
+                                <i class="fas fa-phone"></i>
+                                <span>${ride.phone}</span>
+                            </div>
+                        </div>
+                        ${ride.notes ? `<div class="ride-contact">备注: ${ride.notes}</div>` : ''}
+                        <button style="margin-top: 10px; width: 100%;" onclick="deleteRide(${ride.id})">
+                            <i class="fas fa-trash"></i> 删除
+                        </button>
+                    </div>
+                `;
+            });
+        }
+        
+        // 搜索行程
+        function searchRides() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayRides(rides);
+                return;
+            }
+            
+            const filteredRides = rides.filter(ride => 
+                ride.departure.toLowerCase().includes(searchTerm) || 
+                ride.destination.toLowerCase().includes(searchTerm)
+            );
+            
+            displayRides(filteredRides);
+        }
+        
+        // 删除行程
+        function deleteRide(id) {
+            rides = rides.filter(ride => ride.id !== id);
+            saveRides(rides);
+            displayMyRides();
+        }
+        
+        // 初始化一些示例数据
+        function initSampleData() {
+            if (rides.length === 0) {
+                rides = [
+                    {
+                        id: 1,
+                        departure: "李家村",
+                        destination: "县城中心",
+                        date: "2023-06-15",
+                        time: "08:30",
+                        seats: "3",
+                        price: "15",
+                        notes: "可接送，后备箱空间大",
+                        name: "张师傅",
+                        phone: "13800138000",
+                        timestamp: "2023-06-10T08:00:00Z"
+                    },
+                    {
+                        id: 2,
+                        departure: "王家镇",
+                        destination: "市里火车站",
+                        date: "2023-06-16",
+                        time: "07:00",
+                        seats: "2",
+                        price: "25",
+                        notes: "走高速，约1小时到达",
+                        name: "王师傅",
+                        phone: "13900139000",
+                        timestamp: "2023-06-11T09:30:00Z"
+                    }
+                ];
+            }
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            initSampleData();
+            
+            // 默认显示查找行程标签
+            document.querySelector('.tab[onclick="switchTab(\'find\')"]').click();
+        });
+    </script>
+</body>
+</html>
