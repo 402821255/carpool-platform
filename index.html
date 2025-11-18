@@ -390,12 +390,33 @@
         
         .search-form {
             display: flex;
-            gap: 10px;
+            gap: 15px;
             margin-bottom: 20px;
+            align-items: center;
         }
         
         .search-form input {
             flex: 1;
+            padding: 12px 16px;
+            font-size: 1rem;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            transition: border-color 0.3s ease;
+            min-width: 300px;
+        }
+        
+        .search-form input:focus {
+            outline: none;
+            border-color: #ff5100;
+            box-shadow: 0 0 0 3px rgba(255, 81, 0, 0.1);
+        }
+        
+        .search-form button {
+            padding: 12px 24px;
+            font-size: 0.95rem;
+            white-space: nowrap;
+            min-width: auto;
+            flex-shrink: 0;
         }
         
         .no-rides {
@@ -434,6 +455,23 @@
             
             .container {
                 padding: 15px;
+            }
+            
+            .search-form {
+                flex-direction: column;
+                gap: 12px;
+                align-items: stretch;
+            }
+            
+            .search-form input {
+                min-width: auto;
+                width: 100%;
+            }
+            
+            .search-form button {
+                width: 100%;
+                padding: 14px 20px;
+                font-size: 1rem;
             }
             
             form {
