@@ -52,20 +52,47 @@
         }
         
         .tab {
-            padding: 10px 20px;
+            padding: 12px 24px;
             cursor: pointer;
-            background-color: #f1f1f1;
-            border: 1px solid #ddd;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #dee2e6;
             border-bottom: none;
-            border-radius: 5px 5px 0 0;
-            margin-right: 5px;
+            border-radius: 15px 15px 0 0;
+            margin-right: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .tab:hover {
+            background: linear-gradient(135deg, #fff5f0, #ffe8d6);
+            border-color: #ffccbc;
+            transform: translateY(-1px);
         }
         
         .tab.active {
-            background-color: white;
-            border-bottom: 1px solid white;
-            margin-bottom: -1px;
-            font-weight: bold;
+            background: linear-gradient(135deg, #ff5100, #ff6b35);
+            color: white;
+            border-color: #ff5100;
+            margin-bottom: -2px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 81, 0, 0.3);
+        }
+        
+        .tab::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.5s;
+        }
+        
+        .tab:hover::before {
+            left: 100%;
         }
         
         .tab-content {
@@ -104,34 +131,64 @@
         }
         
         button {
-            background-color: #be0000;
+            background: linear-gradient(135deg, #ff6b35, #ff5100);
             color: white;
             border: none;
             padding: 12px 20px;
-            border-radius: 4px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 1rem;
-            transition: background-color 0.3s;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 81, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
         
         button:hover {
-            background-color: #45a049;
+            background: linear-gradient(135deg, #ff5100, #e64a00);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 81, 0, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 10px rgba(255, 81, 0, 0.3);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
         }
         
         .delete-btn {
-            background-color: #dc3545;
+            background: linear-gradient(135deg, #ff6b6b, #dc3545);
             color: white;
             border: none;
-            padding: 8px 15px;
-            border-radius: 4px;
+            padding: 8px 16px;
+            border-radius: 20px;
             cursor: pointer;
-            font-size: 0.9rem;
-            transition: background-color 0.3s;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
             margin-top: 10px;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
         }
         
         .delete-btn:hover {
-            background-color: #c82333;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
         }
         
         .success-message {
@@ -145,24 +202,38 @@
         }
         
         .countdown-badge {
-            background-color: #ffc107;
-            color: #000;
-            padding: 4px 8px;
-            border-radius: 12px;
-            font-size: 0.8rem;
-            font-weight: bold;
+            background: linear-gradient(135deg, #ffa726, #ff9800);
+            color: white;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
             margin-left: 10px;
             display: inline-block;
+            box-shadow: 0 2px 8px rgba(255, 152, 0, 0.3);
+            animation: pulse 2s infinite;
         }
         
         .countdown-urgent {
-            background-color: #dc3545;
-            color: white;
+            background: linear-gradient(135deg, #ff6b6b, #dc3545);
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4);
+            animation: urgentPulse 1s infinite;
         }
         
         .countdown-expired {
-            background-color: #6c757d;
-            color: white;
+            background: linear-gradient(135deg, #6c757d, #495057);
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+            animation: none;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        
+        @keyframes urgentPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 2px 8px rgba(220, 53, 69, 0.4); }
+            50% { transform: scale(1.1); box-shadow: 0 4px 12px rgba(220, 53, 69, 0.6); }
         }
         
         .expiry-notice {
@@ -173,6 +244,71 @@
             margin-top: 10px;
             font-size: 0.9rem;
             color: #856404;
+        }
+        
+        .share-section {
+            background: linear-gradient(135deg, #fff5f0, #ffe8d6);
+            border: 2px solid #ffccbc;
+            border-radius: 15px;
+            padding: 15px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .post-counter {
+            background: linear-gradient(135deg, #ff5100, #ff6b35);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            display: inline-block;
+            margin: 10px 0;
+            box-shadow: 0 4px 15px rgba(255, 81, 0, 0.3);
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+            margin: 5px;
+        }
+        
+        .share-btn:hover {
+            background: linear-gradient(135deg, #218838, #1ea085);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        }
+        
+        .share-btn:disabled {
+            background: linear-gradient(135deg, #6c757d, #495057);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+        }
+        
+        .reward-message {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border: 2px solid #28a745;
+            border-radius: 12px;
+            padding: 15px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: 600;
+            color: #155724;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
         .full-width {
@@ -269,12 +405,92 @@
         }
         
         @media (max-width: 768px) {
+            header {
+                padding: 15px 0;
+                margin-bottom: 20px;
+            }
+            
+            h1 {
+                font-size: 1.8rem;
+            }
+            
+            .subtitle {
+                font-size: 1rem;
+            }
+            
+            .tabs {
+                flex-wrap: wrap;
+                gap: 8px;
+                margin-bottom: 15px;
+            }
+            
+            .tab {
+                padding: 10px 16px;
+                border-radius: 12px 12px 0 0;
+                margin-right: 4px;
+                margin-bottom: 4px;
+                font-size: 0.9rem;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+            
             form {
                 grid-template-columns: 1fr;
+                gap: 12px;
+            }
+            
+            .form-group {
+                margin-bottom: 12px;
+            }
+            
+            input, select, textarea {
+                padding: 12px;
+                border-radius: 8px;
+                font-size: 16px; /* 防止iOS缩放 */
+            }
+            
+            button {
+                padding: 14px 24px;
+                border-radius: 20px;
+                font-size: 1rem;
+                width: 100%;
+                margin-top: 5px;
             }
             
             .ride-details {
                 grid-template-columns: 1fr;
+                gap: 8px;
+            }
+            
+            .ride-card {
+                padding: 15px;
+                margin-bottom: 10px;
+                border-radius: 12px;
+            }
+            
+            .ride-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .ride-title {
+                font-size: 1.1rem;
+                line-height: 1.4;
+            }
+            
+            .countdown-badge {
+                font-size: 0.7rem;
+                padding: 4px 8px;
+                margin-left: 8px;
+            }
+            
+            .delete-btn {
+                padding: 10px 20px;
+                border-radius: 15px;
+                width: 100%;
             }
             
             footer {
@@ -284,6 +500,29 @@
             
             footer p {
                 font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            h1 {
+                font-size: 1.6rem;
+            }
+            
+            .tabs {
+                gap: 6px;
+            }
+            
+            .tab {
+                padding: 8px 12px;
+                font-size: 0.85rem;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            .ride-card {
+                padding: 12px;
             }
         }
     </style>
@@ -305,6 +544,19 @@
         
         <div id="publish" class="tab-content active">
             <h2>发布车找人信息</h2>
+            <div class="post-counter">
+                <i class="fas fa-chart-line"></i>
+                可用发布次数：<span id="ride-posts-count">3</span> 次
+            </div>
+            <div class="share-section">
+                <p style="margin: 0 0 10px 0; font-weight: 600; color: #ff5100;">
+                    <i class="fas fa-share-alt"></i>
+                    分享到微信朋友圈，获得3次发布机会！
+                </p>
+                <button class="share-btn" onclick="shareToWeChat()">
+                    <i class="fas fa-share"></i> 立即分享
+                </button>
+            </div>
             <div class="expiry-notice">
                 <i class="fas fa-info-circle"></i>
                 <strong>重要提醒：</strong>发布的行程信息在出发时间过后将自动删除，请确保信息准确。
@@ -369,6 +621,19 @@
         
         <div id="find-car" class="tab-content">
             <h2>发布人找车信息</h2>
+            <div class="post-counter">
+                <i class="fas fa-chart-line"></i>
+                可用发布次数：<span id="passenger-posts-count">3</span> 次
+            </div>
+            <div class="share-section">
+                <p style="margin: 0 0 10px 0; font-weight: 600; color: #ff5100;">
+                    <i class="fas fa-share-alt"></i>
+                    分享到微信群，获得3次发布机会！
+                </p>
+                <button class="share-btn" onclick="shareToWeChat()">
+                    <i class="fas fa-share"></i> 立即分享
+                </button>
+            </div>
             <div class="expiry-notice">
                 <i class="fas fa-info-circle"></i>
                 <strong>重要提醒：</strong>发布的乘车需求在出发时间过后将自动删除，请确保信息准确。
@@ -494,6 +759,44 @@
         let rides = getRides();
         let passengers = getPassengers();
         
+        // 发布次数管理
+        function getPostCount() {
+            const stored = localStorage.getItem('carpoolPostCount');
+            return stored ? parseInt(stored) : 3; // 默认3次
+        }
+        
+        function savePostCount(count) {
+            localStorage.setItem('carpoolPostCount', count.toString());
+        }
+        
+        function getSharedStatus() {
+            const stored = localStorage.getItem('carpoolShared');
+            return stored === 'true';
+        }
+        
+        function setSharedStatus(shared) {
+            localStorage.setItem('carpoolShared', shared.toString());
+        }
+        
+        let ridePostCount = getPostCount();
+        let passengerPostCount = getPostCount();
+        
+        // 更新发布次数显示
+        function updatePostCountDisplay() {
+            document.getElementById('ride-posts-count').textContent = ridePostCount;
+            document.getElementById('passenger-posts-count').textContent = passengerPostCount;
+            
+            // 更新分享按钮状态
+            const shareButtons = document.querySelectorAll('.share-btn');
+            const hasShared = getSharedStatus();
+            shareButtons.forEach(btn => {
+                if (hasShared) {
+                    btn.disabled = true;
+                    btn.textContent = '已分享';
+                }
+            });
+        }
+        
         // 检查行程是否过期（超过出发时间）
         function isExpired(item) {
             const itemDateTime = new Date(item.date + ' ' + item.time);
@@ -547,6 +850,126 @@
             return items.filter(item => !isExpired(item));
         }
         
+        // 分享到微信功能
+        function shareToWeChat() {
+            const hasShared = getSharedStatus();
+            
+            if (hasShared) {
+                showSuccessMessage('您已经分享过了，感谢支持！');
+                return;
+            }
+            
+            // 创建分享内容
+            const shareContent = {
+                title: '湘M顺风车发布平台',
+                desc: '专为湘M地区设计的顺风车信息发布平台，车找人、人找车，便捷出行！',
+                url: window.location.href,
+                icon: 'https://via.placeholder.com/300x300/ff5100/ffffff?text=湘M顺风车'
+            };
+            
+            // 尝试调用微信分享API
+            if (typeof wx !== 'undefined') {
+                wx.updateAppMessageShareData({
+                    title: shareContent.title,
+                    desc: shareContent.desc,
+                    link: shareContent.url,
+                    imgUrl: shareContent.icon,
+                    success: function() {
+                        onShareSuccess();
+                    }
+                });
+            } else {
+                // 复制链接到剪贴板
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(`${shareContent.title}
+${shareContent.desc}
+${shareContent.url}`).then(() => {
+                        onShareSuccess();
+                    }).catch(() => {
+                        showShareFallback(shareContent);
+                    });
+                } else {
+                    showShareFallback(shareContent);
+                }
+            }
+        }
+        
+        // 分享成功处理
+        function onShareSuccess() {
+            // 增加发布次数
+            ridePostCount += 3;
+            passengerPostCount += 3;
+            savePostCount(ridePostCount);
+            
+            // 标记已分享
+            setSharedStatus(true);
+            
+            // 更新显示
+            updatePostCountDisplay();
+            
+            // 显示成功消息
+            showSuccessMessage('分享成功！获得3次发布机会！');
+            
+            // 显示奖励消息
+            const rewardDiv = document.createElement('div');
+            rewardDiv.className = 'reward-message';
+            rewardDiv.innerHTML = `
+                <h3 style="margin: 0 0 10px 0; color: #28a745;">
+                    <i class="fas fa-gift"></i> 恭喜获得发布机会！
+                </h3>
+                <p style="margin: 5px 0;">您现在拥有 ${ridePostCount} 次车找人 + ${passengerPostCount} 次人找车发布机会</p>
+                <p style="margin: 5px 0; font-size: 0.9rem; color: #666;">快去发布您的第一条行程吧！</p>
+            `;
+            
+            // 在分享区域后插入奖励消息
+            const shareSection = document.querySelector('.share-section');
+            shareSection.parentNode.insertBefore(rewardDiv, shareSection.nextSibling);
+            
+            // 5秒后淡出奖励消息
+            setTimeout(() => {
+                rewardDiv.style.opacity = '0';
+                rewardDiv.style.transform = 'translateY(-10px)';
+                setTimeout(() => {
+                    if (rewardDiv.parentNode) {
+                        rewardDiv.parentNode.removeChild(rewardDiv);
+                    }
+                }, 500);
+            }, 5000);
+        }
+        
+        // 显示分享备用方案
+        function showShareFallback(shareContent) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.8);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                z-index: 10000;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: white; padding: 30px; border-radius: 15px; max-width: 90%; text-align: center;">
+                    <h3 style="margin: 0 0 20px 0; color: #ff5100;">分享湘M顺风车平台</h3>
+                    <p style="margin: 15px 0; color: #666; line-height: 1.6;">${shareContent.desc}</p>
+                    <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin: 15px 0; word-break: break-all;">
+                        <strong style="color: #ff5100;">分享链接：</strong><br>
+                        ${shareContent.url}
+                    </div>
+                    <button onclick="this.closest('div[style*=fixed]').remove(); onShareSuccess();" style="margin-top: 20px; width: 100%;">
+                        <i class="fas fa-check"></i> 我已分享
+                    </button>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
         // 切换标签页
         function switchTab(tabId) {
             // 隐藏所有标签内容
@@ -580,6 +1003,25 @@
         document.getElementById('ride-form').addEventListener('submit', function(e) {
             e.preventDefault();
             
+            // 检查发布次数
+            if (ridePostCount <= 0) {
+                showSuccessMessage('发布次数已用完！分享到微信可获得更多发布机会。');
+                
+                // 高亮分享区域
+                const shareSection = document.querySelector('.share-section');
+                shareSection.style.background = 'linear-gradient(135deg, #ffebee, #ffcdd2)';
+                shareSection.style.borderColor = '#f44336';
+                shareSection.style.animation = 'pulse 1s 3';
+                
+                setTimeout(() => {
+                    shareSection.style.background = '';
+                    shareSection.style.borderColor = '';
+                    shareSection.style.animation = '';
+                }, 3000);
+                
+                return;
+            }
+            
             // 获取表单数据
             const ride = {
                 id: Date.now(),
@@ -599,11 +1041,16 @@
             rides.push(ride);
             saveRides(rides);
             
+            // 减少发布次数
+            ridePostCount--;
+            savePostCount(ridePostCount);
+            updatePostCountDisplay();
+            
             // 清空表单
             this.reset();
             
             // 显示成功消息
-            showSuccessMessage('车找人信息发布成功！数据已保存到本地存储。');
+            showSuccessMessage(`车找人信息发布成功！剩余发布次数：${ridePostCount}`);
             
             // 切换到我的行程标签
             setTimeout(() => {
@@ -614,6 +1061,25 @@
         // 人找车表单提交
         document.getElementById('passenger-form').addEventListener('submit', function(e) {
             e.preventDefault();
+            
+            // 检查发布次数
+            if (passengerPostCount <= 0) {
+                showSuccessMessage('发布次数已用完！分享到微信群可获得更多发布机会。');
+                
+                // 高亮分享区域
+                const shareSection = document.querySelector('#find-car .share-section');
+                shareSection.style.background = 'linear-gradient(135deg, #ffebee, #ffcdd2)';
+                shareSection.style.borderColor = '#f44336';
+                shareSection.style.animation = 'pulse 1s 3';
+                
+                setTimeout(() => {
+                    shareSection.style.background = '';
+                    shareSection.style.borderColor = '';
+                    shareSection.style.animation = '';
+                }, 3000);
+                
+                return;
+            }
             
             // 获取表单数据
             const passenger = {
@@ -635,11 +1101,16 @@
             passengers.push(passenger);
             savePassengers(passengers);
             
+            // 减少发布次数
+            passengerPostCount--;
+            savePostCount(passengerPostCount);
+            updatePostCountDisplay();
+            
             // 清空表单
             this.reset();
             
             // 显示成功消息
-            showSuccessMessage('人找车信息发布成功！数据已保存到本地存储。');
+            showSuccessMessage(`人找车信息发布成功！剩余发布次数：${passengerPostCount}`);
             
             // 切换到查找行程标签
             setTimeout(() => {
@@ -1080,6 +1551,9 @@
         // 页面加载时初始化
         window.addEventListener('load', function() {
             initSampleData();
+            
+            // 更新发布次数显示
+            updatePostCountDisplay();
             
             // 默认显示查找行程标签
             document.querySelector('.tab[onclick="switchTab(\'find\')"]').click();
