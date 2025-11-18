@@ -556,6 +556,9 @@
                 <button class="share-btn" onclick="shareToWeChat()">
                     <i class="fas fa-share"></i> 立即分享
                 </button>
+                <button class="share-btn" onclick="resetPostCount()" style="background: linear-gradient(135deg, #6c757d, #495057);">
+                    <i class="fas fa-redo"></i> 重置次数
+                </button>
             </div>
             <div class="expiry-notice">
                 <i class="fas fa-info-circle"></i>
@@ -632,6 +635,9 @@
                 </p>
                 <button class="share-btn" onclick="shareToWeChat()">
                     <i class="fas fa-share"></i> 立即分享
+                </button>
+                <button class="share-btn" onclick="resetPostCount()" style="background: linear-gradient(135deg, #6c757d, #495057);">
+                    <i class="fas fa-redo"></i> 重置次数
                 </button>
             </div>
             <div class="expiry-notice">
@@ -760,13 +766,22 @@
         let passengers = getPassengers();
         
         // 发布次数管理
-        function getPostCount() {
-            const stored = localStorage.getItem('carpoolPostCount');
+        function getRidePostCount() {
+            const stored = localStorage.getItem('carpoolRidePostCount');
             return stored ? parseInt(stored) : 3; // 默认3次
         }
         
-        function savePostCount(count) {
-            localStorage.setItem('carpoolPostCount', count.toString());
+        function getPassengerPostCount() {
+            const stored = localStorage.getItem('carpoolPassengerPostCount');
+            return stored ? parseInt(stored) : 3; // 默认3次
+        }
+        
+        function saveRidePostCount(count) {
+            localStorage.setItem('carpoolRidePostCount', count.toString());
+        }
+        
+        function savePassengerPostCount(count) {
+            localStorage.setItem('carpoolPassengerPostCount', count.toString());
         }
         
         function getSharedStatus() {
@@ -778,11 +793,15 @@
             localStorage.setItem('carpoolShared', shared.toString());
         }
         
-        let ridePostCount = getPostCount();
-        let passengerPostCount = getPostCount();
+        let ridePostCount = getRidePostCount();
+        let passengerPostCount = getPassengerPostCount();
         
         // 更新发布次数显示
         function updatePostCountDisplay() {
+            // 重新获取最新的计数，防止页面刷新后数据不同步
+            ridePostCount = getRidePostCount();
+            passengerPostCount = getPassengerPostCount();
+            
             document.getElementById('ride-posts-count').textContent = ridePostCount;
             document.getElementById('passenger-posts-count').textContent = passengerPostCount;
             
@@ -867,28 +886,43 @@
                 icon: 'https://via.placeholder.com/300x300/ff5100/ffffff?text=湘M顺风车'
             };
             
-            // 尝试调用微信分享API
-            if (typeof wx !== 'undefined') {
-                wx.updateAppMessageShareData({
-                    title: shareContent.title,
-                    desc: shareContent.desc,
-                    link: shareContent.url,
-                    imgUrl: shareContent.icon,
-                    success: function() {
-                        onShareSuccess();
-                    }
-                });
+            // 检测是否在微信浏览器中
+            const isWeChat = /micromessenger/i.test(navigator.userAgent);
+            
+            if (isWeChat && typeof wx !== 'undefined') {
+                // 微信环境分享
+                try {
+                    wx.updateAppMessageShareData({
+                        title: shareContent.title,
+                        desc: shareContent.desc,
+                        link: shareContent.url,
+                        imgUrl: shareContent.icon,
+                        success: function() {
+                            onShareSuccess();
+                        },
+                        fail: function() {
+                            showShareFallback(shareContent);
+                        }
+                    });
+                } catch (e) {
+                    showShareFallback(shareContent);
+                }
             } else {
-                // 复制链接到剪贴板
-                if (navigator.clipboard) {
-                    navigator.clipboard.writeText(`${shareContent.title}
+                // 非微信环境 - 复制链接到剪贴板
+                try {
+                    if (navigator.clipboard && window.isSecureContext) {
+                        navigator.clipboard.writeText(`${shareContent.title}
 ${shareContent.desc}
 ${shareContent.url}`).then(() => {
-                        onShareSuccess();
-                    }).catch(() => {
+                            onShareSuccess();
+                        }).catch(() => {
+                            showShareFallback(shareContent);
+                        });
+                    } else {
+                        // 降级方案：直接显示分享对话框
                         showShareFallback(shareContent);
-                    });
-                } else {
+                    }
+                } catch (e) {
                     showShareFallback(shareContent);
                 }
             }
@@ -899,7 +933,8 @@ ${shareContent.url}`).then(() => {
             // 增加发布次数
             ridePostCount += 3;
             passengerPostCount += 3;
-            savePostCount(ridePostCount);
+            saveRidePostCount(ridePostCount);
+            savePassengerPostCount(passengerPostCount);
             
             // 标记已分享
             setSharedStatus(true);
@@ -923,18 +958,20 @@ ${shareContent.url}`).then(() => {
             
             // 在分享区域后插入奖励消息
             const shareSection = document.querySelector('.share-section');
-            shareSection.parentNode.insertBefore(rewardDiv, shareSection.nextSibling);
-            
-            // 5秒后淡出奖励消息
-            setTimeout(() => {
-                rewardDiv.style.opacity = '0';
-                rewardDiv.style.transform = 'translateY(-10px)';
+            if (shareSection) {
+                shareSection.parentNode.insertBefore(rewardDiv, shareSection.nextSibling);
+                
+                // 5秒后淡出奖励消息
                 setTimeout(() => {
-                    if (rewardDiv.parentNode) {
-                        rewardDiv.parentNode.removeChild(rewardDiv);
-                    }
-                }, 500);
-            }, 5000);
+                    rewardDiv.style.opacity = '0';
+                    rewardDiv.style.transform = 'translateY(-10px)';
+                    setTimeout(() => {
+                        if (rewardDiv.parentNode) {
+                            rewardDiv.parentNode.removeChild(rewardDiv);
+                        }
+                    }, 500);
+                }, 5000);
+            }
         }
         
         // 显示分享备用方案
@@ -968,6 +1005,35 @@ ${shareContent.url}`).then(() => {
             `;
             
             document.body.appendChild(modal);
+        }
+        
+        // 重置发布次数
+        function resetPostCount() {
+            if (confirm('确定要重置发布次数吗？这将清空所有发布记录并重新开始。')) {
+                // 重置发布次数为默认值
+                ridePostCount = 3;
+                passengerPostCount = 3;
+                saveRidePostCount(ridePostCount);
+                savePassengerPostCount(passengerPostCount);
+                
+                // 重置分享状态
+                setSharedStatus(false);
+                
+                // 更新显示
+                updatePostCountDisplay();
+                
+                // 显示成功消息
+                showSuccessMessage('发布次数已重置！车找人和人找车各有3次机会！');
+                
+                // 清空所有行程数据（可选）
+                if (confirm('是否同时清空所有已发布的行程信息？')) {
+                    localStorage.removeItem('carpoolRides');
+                    localStorage.removeItem('carpoolPassengers');
+                    rides = [];
+                    passengers = [];
+                    showSuccessMessage('所有行程信息已清空！');
+                }
+            }
         }
         
         // 切换标签页
@@ -1043,7 +1109,7 @@ ${shareContent.url}`).then(() => {
             
             // 减少发布次数
             ridePostCount--;
-            savePostCount(ridePostCount);
+            saveRidePostCount(ridePostCount);
             updatePostCountDisplay();
             
             // 清空表单
@@ -1103,7 +1169,7 @@ ${shareContent.url}`).then(() => {
             
             // 减少发布次数
             passengerPostCount--;
-            savePostCount(passengerPostCount);
+            savePassengerPostCount(passengerPostCount);
             updatePostCountDisplay();
             
             // 清空表单
