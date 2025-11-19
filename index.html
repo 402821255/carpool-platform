@@ -314,9 +314,203 @@
             font-size: 0.9rem;
             opacity: 0.8;
         }
+
+        /* 用户系统样式 */
+        .user-info {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .user-info.guest {
+            background: #f8f9fa;
+        }
+
+        .user-info.logged-in {
+            background: linear-gradient(135deg, #ff5100, #ff6b35);
+            color: white;
+        }
+
+        .user-btn {
+            background: #ff5100;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .user-btn:hover {
+            background: #e64a00;
+            transform: scale(1.05);
+        }
+
+        .user-btn.logout {
+            background: #dc3545;
+            margin-left: 5px;
+        }
+
+        .user-btn.logout:hover {
+            background: #c82333;
+        }
+
+        /* 付费查看功能样式 */
+        .phone-hidden {
+            color: #999;
+            font-style: italic;
+        }
+
+        .reveal-phone-btn {
+            background: linear-gradient(135deg, #20c997, #1ea085);
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            margin-left: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .reveal-phone-btn:hover {
+            background: linear-gradient(135deg, #1ea085, #1a8c77);
+            transform: translateY(-1px);
+        }
+
+        .payment-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .payment-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+
+        .payment-modal h3 {
+            color: #ff5100;
+            margin-bottom: 20px;
+        }
+
+        .payment-price {
+            font-size: 2rem;
+            color: #ff5100;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .payment-btn {
+            background: linear-gradient(135deg, #20c997, #1ea085);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .payment-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(32, 201, 151, 0.3);
+        }
+
+        .cancel-btn {
+            background: #6c757d;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+
+        /* 用户注册/登录表单样式 */
+        .auth-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 10000;
+        }
+
+        .auth-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .auth-tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
+            text-align: center;
+            cursor: pointer;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-bottom: none;
+        }
+
+        .auth-tab.active {
+            background: #ff5100;
+            color: white;
+            border-color: #ff5100;
+        }
+
+        .auth-form {
+            display: none;
+        }
+
+        .auth-form.active {
+            display: block;
+        }
     </style>
 </head>
 <body>
+    <!-- 用户信息显示区域 -->
+    <div class="user-info" id="user-info">
+        <span id="user-status">游客模式</span>
+        <button class="user-btn" onclick="showAuthModal()">登录/注册</button>
+    </div>
+    
     <div class="container">
         <header>
             <h1>湘M信息发布平台</h1>
@@ -674,6 +868,71 @@
         </div>
     </div>
 
+    <!-- 用户认证模态框 -->
+    <div class="auth-modal" id="auth-modal">
+        <div class="auth-modal-content">
+            <h3>👤 用户中心</h3>
+            <div class="auth-tabs">
+                <div class="auth-tab active" onclick="switchAuthTab('login')">登录</div>
+                <div class="auth-tab" onclick="switchAuthTab('register')">注册</div>
+            </div>
+            
+            <!-- 登录表单 -->
+            <div class="auth-form active" id="login-form">
+                <div class="form-group">
+                    <label for="login-username">用户名</label>
+                    <input type="text" id="login-username" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">密码</label>
+                    <input type="password" id="login-password" placeholder="请输入密码" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="user-btn" onclick="login()">登录</button>
+                </div>
+            </div>
+            
+            <!-- 注册表单 -->
+            <div class="auth-form" id="register-form">
+                <div class="form-group">
+                    <label for="register-username">用户名</label>
+                    <input type="text" id="register-username" placeholder="请输入用户名" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-password">密码</label>
+                    <input type="password" id="register-password" placeholder="请输入密码（至少6位）" required>
+                </div>
+                <div class="form-group">
+                    <label for="register-phone">手机号</label>
+                    <input type="tel" id="register-phone" placeholder="请输入手机号" required>
+                </div>
+                <div class="form-group">
+                    <button type="button" class="user-btn" onclick="register()">注册</button>
+                </div>
+            </div>
+            
+            <div style="margin-top: 15px; text-align: center;">
+                <button class="cancel-btn" onclick="hideAuthModal()">取消</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 付费查看模态框 -->
+    <div class="payment-modal" id="payment-modal">
+        <div class="payment-modal-content">
+            <h3>💰 查看联系方式</h3>
+            <p>查看联系方式需要支付费用</p>
+            <div class="payment-price">¥0.20</div>
+            <p style="color: #666; font-size: 0.9rem;">支付后可查看完整电话号码并直接拨打</p>
+            
+            <div style="margin: 20px 0;">
+                <button class="payment-btn" onclick="simulatePayment()">立即支付</button>
+            </div>
+            
+            <button class="cancel-btn" onclick="hidePaymentModal()">取消</button>
+        </div>
+    </div>
+
     <!-- 公告编辑模态框 -->
     <div class="announcement-modal" id="announcement-modal">
         <div class="announcement-modal-content">
@@ -692,6 +951,15 @@
         var passengers = [];
         var products = [];
         var businesses = [];
+        
+        // 用户系统
+        var currentUser = null;
+        var users = [];
+        var paidContacts = []; // 存储已付费查看的联系方式
+        
+        // 当前要查看的联系方式
+        var currentViewingRide = null;
+        var currentViewingType = null;
         
         // 切换标签页
         function switchTab(tabId) {
@@ -737,6 +1005,13 @@
         function publishRide(event) {
             event.preventDefault();
             
+            // 检查用户权限
+            if (!currentUser) {
+                alert('🔒 请先登录后再发布行程信息！');
+                showAuthModal();
+                return;
+            }
+            
             // 获取表单数据
             var rideData = {
                 type: 'car-find-passenger',
@@ -749,7 +1024,8 @@
                 notes: document.getElementById('notes').value,
                 name: document.getElementById('name').value,
                 phone: document.getElementById('phone').value,
-                publishTime: new Date().toLocaleString()
+                publishTime: new Date().toLocaleString(),
+                publisher: currentUser.username
             };
             
             // 保存数据
@@ -769,6 +1045,13 @@
         function publishPassenger(event) {
             event.preventDefault();
             
+            // 检查用户权限
+            if (!currentUser) {
+                alert('🔒 请先登录后再发布行程信息！');
+                showAuthModal();
+                return;
+            }
+            
             // 获取表单数据
             var passengerData = {
                 type: 'passenger-find-car',
@@ -781,7 +1064,8 @@
                 notes: document.getElementById('passenger-notes').value,
                 name: document.getElementById('passenger-name').value,
                 phone: document.getElementById('passenger-phone').value,
-                publishTime: new Date().toLocaleString()
+                publishTime: new Date().toLocaleString(),
+                publisher: currentUser.username
             };
             
             // 保存数据
@@ -935,7 +1219,13 @@
                 }
                 
                 if (ride.name && ride.phone) {
-                    html += '<p><strong>联系人：</strong>' + ride.name + ' (' + ride.phone + ')</p>';
+                    // 在"我的行程"中显示完整号码，因为是自己发布的
+                    var isOwnRide = currentUser && ride.publisher === currentUser.username;
+                    if (isOwnRide) {
+                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + ride.phone + ')</p>';
+                    } else {
+                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + formatPhone(ride, i, 'my') + ')</p>';
+                    }
                 }
                 
                 if (ride.notes) {
@@ -1007,7 +1297,13 @@
                 }
                 
                 if (ride.name && ride.phone) {
-                    html += '<p><strong>联系人：</strong>' + ride.name + ' (' + ride.phone + ')</p>';
+                    // 在"我的行程"中显示完整号码，因为是自己发布的
+                    var isOwnRide = currentUser && ride.publisher === currentUser.username;
+                    if (isOwnRide) {
+                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + ride.phone + ')</p>';
+                    } else {
+                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + formatPhone(ride, i, 'my') + ')</p>';
+                    }
                 }
                 
                 if (ride.notes) {
@@ -1080,7 +1376,13 @@
                 }
                 
                 if (ride.name && ride.phone) {
-                    html += '<p><strong>联系人：</strong>' + ride.name + ' (' + ride.phone + ')</p>';
+                    // 在"我的行程"中显示完整号码，因为是自己发布的
+                    var isOwnRide = currentUser && ride.publisher === currentUser.username;
+                    if (isOwnRide) {
+                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + ride.phone + ')</p>';
+                    } else {
+                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + formatPhone(ride, i, 'my') + ')</p>';
+                    }
                 }
                 
                 if (ride.notes) {
@@ -1177,9 +1479,278 @@
             }
         }
         
+        // 用户系统相关函数
+        
+        // 格式化电话号码显示
+        function formatPhone(ride, index, context) {
+            // 检查是否已付费
+            var contactId = ride.type + '_' + index;
+            var hasPaid = paidContacts.some(function(paid) { 
+                return paid.id === contactId && paid.username === (currentUser ? currentUser.username : 'guest');
+            });
+            
+            // 如果是自己的行程或者已付费，显示完整号码
+            var isOwnRide = currentUser && ride.publisher === currentUser.username;
+            if (isOwnRide || hasPaid) {
+                return '<span style="color: #28a745;">' + ride.phone + '</span>';
+            }
+            
+            // 否则显示隐藏号码和付费按钮
+            var hiddenPhone = ride.phone.substring(0, 3) + '****' + ride.phone.substring(7);
+            return '<span class="phone-hidden">' + hiddenPhone + '</span>' + 
+                   '<button class="reveal-phone-btn" onclick="showPaymentModal(\'' + ride.type + '\', ' + index + ')">查看号码</button>';
+        }
+        
+        // 显示认证模态框
+        function showAuthModal() {
+            var modal = document.getElementById('auth-modal');
+            modal.style.display = 'flex';
+        }
+        
+        // 隐藏认证模态框
+        function hideAuthModal() {
+            var modal = document.getElementById('auth-modal');
+            modal.style.display = 'none';
+        }
+        
+        // 切换认证标签
+        function switchAuthTab(tab) {
+            var loginTab = document.querySelector('.auth-tab:first-child');
+            var registerTab = document.querySelector('.auth-tab:last-child');
+            var loginForm = document.getElementById('login-form');
+            var registerForm = document.getElementById('register-form');
+            
+            if (tab === 'login') {
+                loginTab.classList.add('active');
+                registerTab.classList.remove('active');
+                loginForm.classList.add('active');
+                registerForm.classList.remove('active');
+            } else {
+                loginTab.classList.remove('active');
+                registerTab.classList.add('active');
+                loginForm.classList.remove('active');
+                registerForm.classList.add('active');
+            }
+        }
+        
+        // 用户注册
+        function register() {
+            var username = document.getElementById('register-username').value.trim();
+            var password = document.getElementById('register-password').value.trim();
+            var phone = document.getElementById('register-phone').value.trim();
+            
+            if (!username || !password || !phone) {
+                alert('请填写完整信息！');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('密码至少需要6位！');
+                return;
+            }
+            
+            // 检查用户名是否已存在
+            if (users.some(function(user) { return user.username === username; })) {
+                alert('用户名已存在！');
+                return;
+            }
+            
+            // 创建新用户
+            var newUser = {
+                username: username,
+                password: password,
+                phone: phone,
+                registerTime: new Date().toLocaleString(),
+                balance: 0 // 初始余额
+            };
+            
+            users.push(newUser);
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            alert('🎉 注册成功！请登录。');
+            
+            // 清空表单
+            document.getElementById('register-form').reset();
+            
+            // 切换到登录标签
+            switchAuthTab('login');
+        }
+        
+        // 用户登录
+        function login() {
+            var username = document.getElementById('login-username').value.trim();
+            var password = document.getElementById('login-password').value.trim();
+            
+            if (!username || !password) {
+                alert('请输入用户名和密码！');
+                return;
+            }
+            
+            // 查找用户
+            var user = users.find(function(u) { 
+                return u.username === username && u.password === password; 
+            });
+            
+            if (user) {
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUserDisplay();
+                hideAuthModal();
+                alert('🎉 登录成功！欢迎回来，' + user.username + '！');
+                
+                // 清空登录表单
+                document.getElementById('login-form').reset();
+                
+                // 刷新显示
+                displayRides();
+                displayMyRides();
+            } else {
+                alert('用户名或密码错误！');
+            }
+        }
+        
+        // 用户退出登录
+        function logout() {
+            if (confirm('确定要退出登录吗？')) {
+                currentUser = null;
+                localStorage.removeItem('currentUser');
+                updateUserDisplay();
+                alert('👋 已退出登录');
+                
+                // 刷新显示
+                displayRides();
+                displayMyRides();
+            }
+        }
+        
+        // 更新用户显示
+        function updateUserDisplay() {
+            var userInfo = document.getElementById('user-info');
+            var userStatus = document.getElementById('user-status');
+            
+            if (currentUser) {
+                userStatus.textContent = currentUser.username + ' (¥' + (currentUser.balance || 0).toFixed(2) + ')';
+                userInfo.classList.add('logged-in');
+                userInfo.classList.remove('guest');
+                
+                // 更新按钮
+                userInfo.innerHTML = '<span id="user-status">' + currentUser.username + ' (¥' + (currentUser.balance || 0).toFixed(2) + ')</span>' +
+                                 '<button class="user-btn logout" onclick="logout()">退出</button>';
+            } else {
+                userStatus.textContent = '游客模式';
+                userInfo.classList.add('guest');
+                userInfo.classList.remove('logged-in');
+                
+                // 更新按钮
+                userInfo.innerHTML = '<span id="user-status">游客模式</span>' +
+                                 '<button class="user-btn" onclick="showAuthModal()">登录/注册</button>';
+            }
+        }
+        
+        // 显示付费模态框
+        function showPaymentModal(type, index) {
+            currentViewingRide = index;
+            currentViewingType = type;
+            
+            // 检查是否已登录
+            if (!currentUser) {
+                alert('🔒 请先登录后再查看联系方式！');
+                showAuthModal();
+                return;
+            }
+            
+            // 检查余额
+            if ((currentUser.balance || 0) < 0.2) {
+                alert('💰 余额不足！请充值后再查看联系方式。\n当前余额：¥' + (currentUser.balance || 0).toFixed(2));
+                return;
+            }
+            
+            var modal = document.getElementById('payment-modal');
+            modal.style.display = 'flex';
+        }
+        
+        // 隐藏付费模态框
+        function hidePaymentModal() {
+            var modal = document.getElementById('payment-modal');
+            modal.style.display = 'none';
+        }
+        
+        // 模拟支付
+        function simulatePayment() {
+            if (!currentUser || currentViewingRide === null) {
+                alert('参数错误！');
+                return;
+            }
+            
+            // 扣除费用
+            currentUser.balance = (currentUser.balance || 0) - 0.2;
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            
+            // 更新用户列表中的余额
+            var userIndex = users.findIndex(function(u) { return u.username === currentUser.username; });
+            if (userIndex !== -1) {
+                users[userIndex].balance = currentUser.balance;
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            // 记录已付费查看
+            var contactId = currentViewingType + '_' + currentViewingRide;
+            paidContacts.push({
+                id: contactId,
+                username: currentUser.username,
+                paymentTime: new Date().toLocaleString(),
+                amount: 0.2
+            });
+            localStorage.setItem('paidContacts', JSON.stringify(paidContacts));
+            
+            // 更新显示
+            updateUserDisplay();
+            hidePaymentModal();
+            alert('💰 支付成功！现在可以查看联系方式了。');
+            
+            // 刷新显示
+            if (document.getElementById('find').classList.contains('active')) {
+                searchRides();
+            } else if (document.getElementById('my-rides').classList.contains('active')) {
+                displayMyRides();
+            } else {
+                displayRides();
+            }
+        }
+        
         // 页面加载完成
         window.onload = function() {
             console.log('湘M顺风车平台加载完成！');
+            
+            // 加载用户数据
+            var savedUsers = localStorage.getItem('users');
+            if (savedUsers) {
+                users = JSON.parse(savedUsers);
+            } else {
+                // 创建测试用户
+                users = [
+                    {
+                        username: 'test',
+                        password: '123456',
+                        phone: '13800138000',
+                        registerTime: new Date().toLocaleString(),
+                        balance: 10.00
+                    }
+                ];
+                localStorage.setItem('users', JSON.stringify(users));
+            }
+            
+            // 加载当前登录用户
+            var savedCurrentUser = localStorage.getItem('currentUser');
+            if (savedCurrentUser) {
+                currentUser = JSON.parse(savedCurrentUser);
+            }
+            
+            // 加载付费记录
+            var savedPaidContacts = localStorage.getItem('paidContacts');
+            if (savedPaidContacts) {
+                paidContacts = JSON.parse(savedPaidContacts);
+            }
             
             // 加载保存的公告内容
             var savedAnnouncement = localStorage.getItem('announcementText');
@@ -1210,6 +1781,9 @@
             if (savedBusinesses) {
                 businesses = JSON.parse(savedBusinesses);
             }
+            
+            // 更新用户显示
+            updateUserDisplay();
             
             // 默认显示查找行程
             switchTab('find');
