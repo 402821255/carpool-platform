@@ -1957,13 +1957,65 @@
         // 发布车找人信息
         function publishRide(event) {
             event.preventDefault();
-            alert('车找人信息发布成功！（演示版本）');
+            
+            // 获取表单数据
+            var rideData = {
+                type: 'car-find-passenger',
+                departure: document.getElementById('departure').value,
+                destination: document.getElementById('destination').value,
+                date: document.getElementById('date').value,
+                time: document.getElementById('time').value,
+                seats: document.getElementById('seats').value,
+                price: document.getElementById('price').value,
+                notes: document.getElementById('notes').value,
+                name: document.getElementById('name').value,
+                phone: document.getElementById('phone').value,
+                publishTime: new Date().toLocaleString()
+            };
+            
+            // 保存数据
+            rides.push(rideData);
+            localStorage.setItem('rides', JSON.stringify(rides));
+            
+            alert('🚗 车找人信息发布成功！');
+            
+            // 清空表单
+            event.target.reset();
+            
+            // 刷新我的行程页面
+            displayMyRides();
         }
         
         // 发布人找车信息
         function publishPassenger(event) {
             event.preventDefault();
-            alert('人找车信息发布成功！（演示版本）');
+            
+            // 获取表单数据
+            var passengerData = {
+                type: 'passenger-find-car',
+                departure: document.getElementById('passenger-departure').value,
+                destination: document.getElementById('passenger-destination').value,
+                date: document.getElementById('passenger-date').value,
+                time: document.getElementById('passenger-time').value,
+                count: document.getElementById('passenger-count').value,
+                budget: document.getElementById('passenger-budget').value,
+                notes: document.getElementById('passenger-notes').value,
+                name: document.getElementById('passenger-name').value,
+                phone: document.getElementById('passenger-phone').value,
+                publishTime: new Date().toLocaleString()
+            };
+            
+            // 保存数据
+            passengers.push(passengerData);
+            localStorage.setItem('passengers', JSON.stringify(passengers));
+            
+            alert('🚶 人找车信息发布成功！');
+            
+            // 清空表单
+            event.target.reset();
+            
+            // 刷新我的行程页面
+            displayMyRides();
         }
         
         // 发布农副产品
