@@ -502,6 +502,161 @@
         .auth-form.active {
             display: block;
         }
+
+        /* 管理员功能样式 */
+        .admin-panel {
+            position: fixed;
+            top: 80px;
+            right: 20px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+            padding: 20px;
+            z-index: 999;
+            display: none;
+            min-width: 350px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .admin-panel.show {
+            display: block;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #ff5100, #ff6b35);
+            color: white;
+            padding: 15px;
+            border-radius: 10px 10px 0 0;
+            margin: -20px -20px 20px -20px;
+            text-align: center;
+        }
+
+        .admin-section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .admin-section:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .admin-section h4 {
+            color: #ff5100;
+            margin-bottom: 15px;
+            font-size: 1.1rem;
+        }
+
+        .recharge-form {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .recharge-form input, .recharge-form select {
+            padding: 10px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 0.9rem;
+        }
+
+        .recharge-form input:focus, .recharge-form select:focus {
+            outline: none;
+            border-color: #ff5100;
+        }
+
+        .admin-btn {
+            background: linear-gradient(135deg, #20c997, #1ea085);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 20px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .admin-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(32, 201, 151, 0.3);
+        }
+
+        .admin-btn.danger {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .user-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+
+        .user-item {
+            padding: 8px 12px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .user-item:hover {
+            background: white;
+        }
+
+        .balance-info {
+            color: #20c997;
+            font-weight: 600;
+        }
+
+        /* 分享功能样式 */
+        .share-section {
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .share-btn {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            margin: 10px;
+        }
+
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        }
+
+        .share-amount {
+            color: #28a745;
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .share-status {
+            font-size: 0.85rem;
+            color: #666;
+            margin-top: 10px;
+        }
     </style>
 </head>
 <body>
@@ -509,6 +664,47 @@
     <div class="user-info" id="user-info">
         <span id="user-status">游客模式</span>
         <button class="user-btn" onclick="showAuthModal()">登录/注册</button>
+    </div>
+
+    <!-- 管理员面板 -->
+    <div class="admin-panel" id="admin-panel">
+        <div class="admin-header">
+            <h3>🔧 管理员控制台</h3>
+        </div>
+        
+        <!-- 用户充值管理 -->
+        <div class="admin-section">
+            <h4>💰 用户充值管理</h4>
+            <div class="recharge-form">
+                <select id="recharge-username" placeholder="选择用户">
+                    <option value="">请选择用户</option>
+                </select>
+                <input type="number" id="recharge-amount" placeholder="充值金额（元）" min="0.01" step="0.01">
+                <input type="text" id="recharge-note" placeholder="充值备注（如：线下打款）">
+                <button class="admin-btn" onclick="adminRecharge()">确认充值</button>
+            </div>
+        </div>
+
+        <!-- 用户余额查看 -->
+        <div class="admin-section">
+            <h4>👥 用户余额查看</h4>
+            <div class="user-list" id="admin-user-list">
+                <!-- 用户列表将动态加载 -->
+            </div>
+        </div>
+
+        <!-- 分享奖励记录 -->
+        <div class="admin-section">
+            <h4>📱 分享奖励记录</h4>
+            <div class="user-list" id="share-records">
+                <!-- 分享记录将动态加载 -->
+            </div>
+        </div>
+
+        <!-- 关闭面板 -->
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="admin-btn danger" onclick="hideAdminPanel()">关闭面板</button>
+        </div>
     </div>
     
     <div class="container">
@@ -534,6 +730,7 @@
             <div class="tab" onclick="switchTab('products')">农副产品</div>
             <div class="tab" onclick="switchTab('business')">商机发布</div>
             <div class="tab" onclick="switchTab('my-rides')">我的行程</div>
+            <div class="tab" onclick="switchTab('share')">分享赚奖励</div>
         </div>
         
         <div id="publish" class="tab-content">
@@ -847,6 +1044,45 @@
                 </div>
             </div>
         </div>
+
+        <div id="share" class="tab-content">
+            <h2>📱 分享赚奖励</h2>
+            <p>分享平台到微信群或朋友圈，每日前5次分享可获得奖励！</p>
+            
+            <div class="share-section">
+                <div style="font-size: 1.2rem; margin-bottom: 20px; color: #333;">
+                    <strong>🌟 分享奖励规则</strong><br>
+                    <span style="font-size: 0.9rem; color: #666;">
+                        • 分享到微信群：奖励 ¥0.10<br>
+                        • 分享到朋友圈：奖励 ¥0.10<br>
+                        • 每日前5次分享有效计费<br>
+                        • 每日最多可获得 ¥0.50 奖励<br>
+                        • 超过5次后分享无奖励
+                    </span>
+                </div>
+                
+                <div style="margin: 20px 0;">
+                    <button class="share-btn" onclick="shareToWechat()">
+                        📋 复制链接分享到微信群
+                    </button>
+                    <button class="share-btn" onclick="shareToMoments()">
+                        📷 分享到朋友圈
+                    </button>
+                </div>
+                
+                <div class="share-amount">
+                    今日已赚：¥<span id="today-share-amount">0.00</span>
+                </div>
+                
+                <div style="font-size: 0.9rem; color: #666; margin: 10px 0;">
+                    分享次数：<span id="today-share-count">0/5</span>（前5次有效）
+                </div>
+                
+                <div class="share-status" id="share-status">
+                    分享成功后奖励将自动到账
+                </div>
+            </div>
+        </div>
     </div>
     
     <footer>
@@ -956,6 +1192,8 @@
         var currentUser = null;
         var users = [];
         var paidContacts = []; // 存储已付费查看的联系方式
+        var shareRecords = []; // 存储分享奖励记录
+        var adminUsers = ['admin']; // 管理员用户列表
         
         // 当前要查看的联系方式
         var currentViewingRide = null;
@@ -1030,7 +1268,14 @@
             
             // 保存数据
             rides.push(rideData);
-            localStorage.setItem('rides', JSON.stringify(rides));
+            try {
+                localStorage.setItem('rides', JSON.stringify(rides));
+                console.log('车找人信息已保存，当前总数：' + rides.length);
+            } catch (e) {
+                console.error('保存车找人信息失败:', e);
+                alert('保存失败，请重试！');
+                return;
+            }
             
             alert('🚗 车找人信息发布成功！');
             
@@ -1070,7 +1315,14 @@
             
             // 保存数据
             passengers.push(passengerData);
-            localStorage.setItem('passengers', JSON.stringify(passengers));
+            try {
+                localStorage.setItem('passengers', JSON.stringify(passengers));
+                console.log('人找车信息已保存，当前总数：' + passengers.length);
+            } catch (e) {
+                console.error('保存人找车信息失败:', e);
+                alert('保存失败，请重试！');
+                return;
+            }
             
             alert('🚶 人找车信息发布成功！');
             
@@ -1103,7 +1355,14 @@
             
             // 保存数据
             products.push(productData);
-            localStorage.setItem('products', JSON.stringify(products));
+            try {
+                localStorage.setItem('products', JSON.stringify(products));
+                console.log('农副产品信息已保存，当前总数：' + products.length);
+            } catch (e) {
+                console.error('保存农副产品信息失败:', e);
+                alert('保存失败，请重试！');
+                return;
+            }
             
             alert('🌾 农副产品发布成功！信息已保存到系统。');
             
@@ -1132,7 +1391,14 @@
             
             // 保存数据
             businesses.push(businessData);
-            localStorage.setItem('businesses', JSON.stringify(businesses));
+            try {
+                localStorage.setItem('businesses', JSON.stringify(businesses));
+                console.log('商机信息已保存，当前总数：' + businesses.length);
+            } catch (e) {
+                console.error('保存商机信息失败:', e);
+                alert('保存失败，请重试！');
+                return;
+            }
             
             alert('💼 商机信息发布成功！信息已保存到系统。');
             
@@ -1401,18 +1667,25 @@
         
         // 删除行程
         function deleteRide(type, index) {
-            if (confirm('确定要删除这个行程吗？')) {
-                if (type === 'car-find-passenger') {
-                    rides.splice(index, 1);
-                    localStorage.setItem('rides', JSON.stringify(rides));
-                } else if (type === 'passenger-find-car') {
-                    passengers.splice(index, 1);
-                    localStorage.setItem('passengers', JSON.stringify(passengers));
+            if (confirm('确定要删除这个行程吗？删除后无法恢复！')) {
+                try {
+                    if (type === 'car-find-passenger') {
+                        rides.splice(index, 1);
+                        localStorage.setItem('rides', JSON.stringify(rides));
+                        console.log('车找人信息已删除，剩余：' + rides.length + ' 条');
+                    } else if (type === 'passenger-find-car') {
+                        passengers.splice(index, 1);
+                        localStorage.setItem('passengers', JSON.stringify(passengers));
+                        console.log('人找车信息已删除，剩余：' + passengers.length + ' 条');
+                    }
+                    
+                    // 刷新显示
+                    displayMyRides();
+                    alert('行程已删除！');
+                } catch (e) {
+                    console.error('删除行程失败:', e);
+                    alert('删除失败，请重试！');
                 }
-                
-                // 刷新显示
-                displayMyRides();
-                alert('行程已删除！');
             }
         }
         
@@ -1629,15 +1902,24 @@
             var userStatus = document.getElementById('user-status');
             
             if (currentUser) {
-                userStatus.textContent = currentUser.username + ' (¥' + (currentUser.balance || 0).toFixed(2) + ')';
+                var isAdmin = adminUsers.includes(currentUser.username);
+                var statusText = currentUser.username + ' (¥' + (currentUser.balance || 0).toFixed(2) + ')';
+                
                 userInfo.classList.add('logged-in');
                 userInfo.classList.remove('guest');
                 
-                // 更新按钮
-                userInfo.innerHTML = '<span id="user-status">' + currentUser.username + ' (¥' + (currentUser.balance || 0).toFixed(2) + ')</span>' +
-                                 '<button class="user-btn logout" onclick="logout()">退出</button>';
+                // 构建用户信息HTML
+                var userHTML = '<span id="user-status">' + statusText + '</span>';
+                
+                // 如果是管理员，添加管理员按钮
+                if (isAdmin) {
+                    userHTML += '<button class="user-btn" onclick="showAdminPanel()">管理</button>';
+                }
+                
+                userHTML += '<button class="user-btn logout" onclick="logout()">退出</button>';
+                
+                userInfo.innerHTML = userHTML;
             } else {
-                userStatus.textContent = '游客模式';
                 userInfo.classList.add('guest');
                 userInfo.classList.remove('logged-in');
                 
@@ -1717,24 +1999,451 @@
                 displayRides();
             }
         }
+
+        // 管理员功能相关函数
+        
+        // 显示管理员面板
+        function showAdminPanel() {
+            if (!currentUser || !adminUsers.includes(currentUser.username)) {
+                alert('🔒 您没有管理员权限！');
+                return;
+            }
+            
+            var panel = document.getElementById('admin-panel');
+            panel.classList.add('show');
+            
+            // 加载用户列表
+            loadAdminUserList();
+            
+            // 加载分享记录
+            loadShareRecords();
+        }
+        
+        // 隐藏管理员面板
+        function hideAdminPanel() {
+            var panel = document.getElementById('admin-panel');
+            panel.classList.remove('show');
+        }
+        
+        // 加载管理员用户列表
+        function loadAdminUserList() {
+            var userList = document.getElementById('admin-user-list');
+            var usernameSelect = document.getElementById('recharge-username');
+            
+            // 清空现有内容
+            userList.innerHTML = '';
+            usernameSelect.innerHTML = '<option value="">请选择用户</option>';
+            
+            if (users.length === 0) {
+                userList.innerHTML = '<div class="user-item">暂无用户</div>';
+                return;
+            }
+            
+            // 添加用户到列表和选择框
+            users.forEach(function(user) {
+                // 添加到用户列表
+                var userItem = document.createElement('div');
+                userItem.className = 'user-item';
+                userItem.innerHTML = '<span>' + user.username + '</span>' +
+                                    '<span class="balance-info">¥' + (user.balance || 0).toFixed(2) + '</span>';
+                userList.appendChild(userItem);
+                
+                // 添加到选择框
+                var option = document.createElement('option');
+                option.value = user.username;
+                option.textContent = user.username + ' (余额: ¥' + (user.balance || 0).toFixed(2) + ')';
+                usernameSelect.appendChild(option);
+            });
+        }
+        
+        // 管理员充值
+        function adminRecharge() {
+            var username = document.getElementById('recharge-username').value;
+            var amount = parseFloat(document.getElementById('recharge-amount').value);
+            var note = document.getElementById('recharge-note').value.trim();
+            
+            if (!username) {
+                alert('请选择要充值的用户！');
+                return;
+            }
+            
+            if (!amount || amount <= 0) {
+                alert('请输入有效的充值金额！');
+                return;
+            }
+            
+            // 查找用户
+            var userIndex = users.findIndex(function(u) { return u.username === username; });
+            if (userIndex === -1) {
+                alert('用户不存在！');
+                return;
+            }
+            
+            // 更新用户余额
+            users[userIndex].balance = (users[userIndex].balance || 0) + amount;
+            
+            // 记录充值记录
+            var rechargeRecord = {
+                username: username,
+                amount: amount,
+                note: note || '管理员充值',
+                admin: currentUser.username,
+                timestamp: new Date().toLocaleString()
+            };
+            
+            // 保存充值记录
+            if (!users[userIndex].rechargeRecords) {
+                users[userIndex].rechargeRecords = [];
+            }
+            users[userIndex].rechargeRecords.push(rechargeRecord);
+            
+            // 保存到localStorage
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // 如果是当前登录用户，同时更新currentUser
+            if (currentUser && currentUser.username === username) {
+                currentUser.balance = users[userIndex].balance;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                updateUserDisplay();
+            }
+            
+            // 刷新管理面板
+            loadAdminUserList();
+            
+            // 清空表单
+            document.getElementById('recharge-amount').value = '';
+            document.getElementById('recharge-note').value = '';
+            document.getElementById('recharge-username').value = '';
+            
+            alert('✅ 充值成功！\n用户：' + username + '\n金额：¥' + amount.toFixed(2) + '\n备注：' + note);
+        }
+        
+        // 加载分享记录
+        function loadShareRecords() {
+            var recordsContainer = document.getElementById('share-records');
+            
+            if (shareRecords.length === 0) {
+                recordsContainer.innerHTML = '<div class="user-item">暂无分享记录</div>';
+                return;
+            }
+            
+            recordsContainer.innerHTML = '';
+            
+            // 按时间倒序排列
+            var sortedRecords = shareRecords.slice().sort(function(a, b) {
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+            
+            // 只显示最近20条记录
+            var recentRecords = sortedRecords.slice(0, 20);
+            
+            recentRecords.forEach(function(record) {
+                var recordItem = document.createElement('div');
+                recordItem.className = 'user-item';
+                recordItem.innerHTML = '<span>' + record.username + ' (' + record.type + ')</span>' +
+                                    '<span style="color: #28a745;">¥0.10</span>';
+                recordItem.title = '时间：' + record.timestamp;
+                recordsContainer.appendChild(recordItem);
+            });
+        }
+
+        // 分享功能相关函数
+        
+        // 分享到微信群
+        function shareToWechat() {
+            if (!currentUser) {
+                alert('🔒 请先登录后再分享！');
+                showAuthModal();
+                return;
+            }
+            
+            // 复制链接到剪贴板
+            var shareUrl = window.location.href;
+            var shareText = '【湘M顺风车】绿色出行，便民利民！车找人、人找车，还有农副产品商机发布，赶快加入吧！\n' + shareUrl;
+            
+            copyToClipboard(shareText);
+            
+            // 验证分享
+            verifyShare('微信群');
+        }
+        
+        // 分享到朋友圈
+        function shareToMoments() {
+            if (!currentUser) {
+                alert('🔒 请先登录后再分享！');
+                showAuthModal();
+                return;
+            }
+            
+            // 直接复制链接并验证
+            var shareUrl = window.location.href;
+            var shareText = '【湘M顺风车】绿色出行，便民利民！车找人、人找车，还有农副产品商机发布，赶快加入吧！\n' + shareUrl;
+            
+            copyToClipboard(shareText);
+            
+            // 简化验证：点击即视为分享成功
+            verifyShare('朋友圈');
+        }
+        
+        // 复制到剪贴板
+        function copyToClipboard(text) {
+            var textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.opacity = '0';
+            document.body.appendChild(textarea);
+            textarea.select();
+            
+            try {
+                document.execCommand('copy');
+                showShareStatus('✅ 链接已复制到剪贴板！');
+            } catch (err) {
+                showShareStatus('❌ 复制失败，请手动复制：\n' + text);
+            }
+            
+            document.body.removeChild(textarea);
+        }
+        
+        // 验证分享并发放奖励
+        function verifyShare(shareType) {
+            if (!currentUser) return;
+            
+            // 获取今日日期
+            var today = new Date().toDateString();
+            
+            // 获取今日分享记录（包括不计费的）
+            var todayAllRecords = shareRecords.filter(function(record) {
+                return record.username === currentUser.username && 
+                       record.timestamp.startsWith(today.substring(0, 10));
+            });
+            
+            // 获取今日已计费次数
+            var todayPaidRecords = todayAllRecords.filter(function(record) {
+                return record.amount > 0;
+            });
+            
+            // 检查今日已分享次数
+            var totalShareCount = todayAllRecords.length;
+            var paidShareCount = todayPaidRecords.length;
+            
+            // 记录分享（始终记录，但不一定给奖励）
+            var shareRecord = {
+                username: currentUser.username,
+                type: shareType,
+                amount: 0, // 默认无奖励
+                timestamp: new Date().toLocaleString()
+            };
+            
+            var shouldGiveReward = false;
+            var message = '';
+            
+            if (paidShareCount >= 5) {
+                // 前5次已经获得奖励，本次不给奖励
+                message = '📱 分享已记录！今日前5次分享已获得奖励，后续分享无奖励。';
+            } else {
+                // 前5次内，给奖励
+                shareRecord.amount = 0.10;
+                shouldGiveReward = true;
+                message = '🎉 分享成功！获得 ¥0.10 奖励，已自动到账！';
+            }
+            
+            // 保存分享记录
+            shareRecords.push(shareRecord);
+            localStorage.setItem('shareRecords', JSON.stringify(shareRecords));
+            
+            // 如果需要给奖励
+            if (shouldGiveReward) {
+                currentUser.balance = (currentUser.balance || 0) + 0.10;
+                
+                // 更新用户列表
+                var userIndex = users.findIndex(function(u) { return u.username === currentUser.username; });
+                if (userIndex !== -1) {
+                    users[userIndex].balance = currentUser.balance;
+                    localStorage.setItem('users', JSON.stringify(users));
+                }
+                
+                // 保存当前用户
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            }
+            
+            // 更新显示
+            updateUserDisplay();
+            updateTodayShareAmount();
+            updateShareCountDisplay(totalShareCount + 1, paidShareCount + (shouldGiveReward ? 1 : 0));
+            
+            showShareStatus(message);
+        }
+        
+        // 显示分享状态
+        function showShareStatus(message) {
+            var statusElement = document.getElementById('share-status');
+            statusElement.textContent = message;
+            statusElement.style.color = message.includes('成功') ? '#28a745' : '#dc3545';
+            
+            // 3秒后恢复默认状态
+            setTimeout(function() {
+                statusElement.textContent = '分享成功后奖励将自动到账';
+                statusElement.style.color = '#666';
+            }, 3000);
+        }
+        
+        // 更新今日分享金额
+        function updateTodayShareAmount() {
+            if (!currentUser) {
+                document.getElementById('today-share-amount').textContent = '0.00';
+                return;
+            }
+            
+            var today = new Date().toDateString();
+            var todayPaidRecords = shareRecords.filter(function(record) {
+                return record.username === currentUser.username && 
+                       record.timestamp.startsWith(today.substring(0, 10)) &&
+                       record.amount > 0;
+            });
+            
+            var todayAmount = todayPaidRecords.length * 0.10;
+            document.getElementById('today-share-amount').textContent = todayAmount.toFixed(2);
+        }
+        
+        // 更新分享次数显示
+        function updateShareCountDisplay(totalCount, paidCount) {
+            if (!currentUser) return;
+            
+            var countElement = document.getElementById('today-share-count');
+            if (countElement) {
+                countElement.textContent = paidCount + '/5';
+            }
+        }
+        
+        // 初始化分享次数显示
+        function initShareCountDisplay() {
+            if (!currentUser) {
+                var countElement = document.getElementById('today-share-count');
+                if (countElement) {
+                    countElement.textContent = '0/5';
+                }
+                return;
+            }
+            
+            var today = new Date().toDateString();
+            var todayAllRecords = shareRecords.filter(function(record) {
+                return record.username === currentUser.username && 
+                       record.timestamp.startsWith(today.substring(0, 10));
+            });
+            
+            var todayPaidRecords = todayAllRecords.filter(function(record) {
+                return record.amount > 0;
+            });
+            
+            updateShareCountDisplay(todayAllRecords.length, todayPaidRecords.length);
+        }
         
         // 页面加载完成
         window.onload = function() {
             console.log('湘M顺风车平台加载完成！');
             
+            // 数据加载保护函数 - 防止数据丢失
+            function safeLoadData(key, defaultEmptyArray = false) {
+                try {
+                    var savedData = localStorage.getItem(key);
+                    if (savedData) {
+                        var parsed = JSON.parse(savedData);
+                        // 确保返回的是数组
+                        return Array.isArray(parsed) ? parsed : [];
+                    }
+                    return defaultEmptyArray ? [] : null;
+                } catch (e) {
+                    console.warn('加载数据失败 [' + key + ']:', e);
+                    return defaultEmptyArray ? [] : null;
+                }
+            }
+            
+            // 数据恢复检查 - 检查是否需要从备份恢复
+            function checkAndRestoreFromBackup() {
+                var backupKeys = Object.keys(localStorage).filter(function(key) {
+                    return key.startsWith('backup_');
+                });
+                
+                if (backupKeys.length > 0) {
+                    backupKeys.sort().reverse(); // 获取最新的备份
+                    
+                    try {
+                        var latestBackup = JSON.parse(localStorage.getItem(backupKeys[0]));
+                        var backupTime = new Date(latestBackup.timestamp);
+                        var now = new Date();
+                        
+                        // 检查主要数据是否存在，如果都不存在则从备份恢复
+                        var hasMainData = localStorage.getItem('rides') || 
+                                         localStorage.getItem('passengers') || 
+                                         localStorage.getItem('products') || 
+                                         localStorage.getItem('businesses');
+                        
+                        if (!hasMainData) {
+                            console.log('检测到数据丢失，从备份恢复：' + backupKeys[0]);
+                            
+                            if (latestBackup.rides) rides = latestBackup.rides;
+                            if (latestBackup.passengers) passengers = latestBackup.passengers;
+                            if (latestBackup.products) products = latestBackup.products;
+                            if (latestBackup.businesses) businesses = latestBackup.businesses;
+                            if (latestBackup.users) users = latestBackup.users;
+                            if (latestBackup.shareRecords) shareRecords = latestBackup.shareRecords;
+                            if (latestBackup.paidContacts) paidContacts = latestBackup.paidContacts;
+                            
+                            // 恢复到localStorage
+                            localStorage.setItem('rides', JSON.stringify(rides));
+                            localStorage.setItem('passengers', JSON.stringify(passengers));
+                            localStorage.setItem('products', JSON.stringify(products));
+                            localStorage.setItem('businesses', JSON.stringify(businesses));
+                            localStorage.setItem('users', JSON.stringify(users));
+                            localStorage.setItem('shareRecords', JSON.stringify(shareRecords));
+                            localStorage.setItem('paidContacts', JSON.stringify(paidContacts));
+                            
+                            console.log('数据恢复完成');
+                            return true;
+                        }
+                    } catch (e) {
+                        console.warn('备份恢复失败:', e);
+                    }
+                }
+                return false;
+            }
+            
+            // 尝试从备份恢复数据
+            var restored = checkAndRestoreFromBackup();
+            if (restored) {
+                console.log('已从备份恢复数据');
+            }
+            
+            // 加载发布数据（优先加载，防止被用户初始化覆盖）
+            rides = safeLoadData('rides', true);
+            passengers = safeLoadData('passengers', true);
+            products = safeLoadData('products', true);
+            businesses = safeLoadData('businesses', true);
+            
             // 加载用户数据
-            var savedUsers = localStorage.getItem('users');
-            if (savedUsers) {
-                users = JSON.parse(savedUsers);
+            var savedUsers = safeLoadData('users');
+            if (savedUsers && savedUsers.length > 0) {
+                users = savedUsers;
+                console.log('已加载用户数据：' + users.length + ' 个用户');
             } else {
+                console.log('首次使用，创建测试用户');
                 // 创建测试用户
                 users = [
                     {
-                        username: 'test',
-                        password: '123456',
+                        username: 'admin',
+                        password: 'admin123',
                         phone: '13800138000',
                         registerTime: new Date().toLocaleString(),
-                        balance: 10.00
+                        balance: 100.00,
+                        rechargeRecords: []
+                    },
+                    {
+                        username: 'test',
+                        password: '123456',
+                        phone: '13800138001',
+                        registerTime: new Date().toLocaleString(),
+                        balance: 10.00,
+                        rechargeRecords: []
                     }
                 ];
                 localStorage.setItem('users', JSON.stringify(users));
@@ -1743,51 +2452,91 @@
             // 加载当前登录用户
             var savedCurrentUser = localStorage.getItem('currentUser');
             if (savedCurrentUser) {
-                currentUser = JSON.parse(savedCurrentUser);
+                try {
+                    currentUser = JSON.parse(savedCurrentUser);
+                } catch (e) {
+                    console.warn('加载当前用户失败:', e);
+                    currentUser = null;
+                }
             }
             
             // 加载付费记录
-            var savedPaidContacts = localStorage.getItem('paidContacts');
-            if (savedPaidContacts) {
-                paidContacts = JSON.parse(savedPaidContacts);
-            }
+            paidContacts = safeLoadData('paidContacts', true);
+            
+            // 加载分享记录
+            shareRecords = safeLoadData('shareRecords', true);
             
             // 加载保存的公告内容
             var savedAnnouncement = localStorage.getItem('announcementText');
             if (savedAnnouncement) {
-                document.getElementById('announcement-text').textContent = savedAnnouncement;
+                var announcementElement = document.getElementById('announcement-text');
+                if (announcementElement) {
+                    announcementElement.textContent = savedAnnouncement;
+                }
             }
             
-            // 加载行程数据
-            var savedRides = localStorage.getItem('rides');
-            if (savedRides) {
-                rides = JSON.parse(savedRides);
-            }
-            
-            // 加载乘客数据
-            var savedPassengers = localStorage.getItem('passengers');
-            if (savedPassengers) {
-                passengers = JSON.parse(savedPassengers);
-            }
-            
-            // 加载农副产品数据
-            var savedProducts = localStorage.getItem('products');
-            if (savedProducts) {
-                products = JSON.parse(savedProducts);
-            }
-            
-            // 加载商机数据
-            var savedBusinesses = localStorage.getItem('businesses');
-            if (savedBusinesses) {
-                businesses = JSON.parse(savedBusinesses);
-            }
+            // 数据完整性检查和日志
+            console.log('数据加载完成：');
+            console.log('- 车找人信息：' + rides.length + ' 条');
+            console.log('- 人找车信息：' + passengers.length + ' 条');
+            console.log('- 农副产品：' + products.length + ' 条');
+            console.log('- 商机信息：' + businesses.length + ' 条');
+            console.log('- 用户数据：' + users.length + ' 个用户');
             
             // 更新用户显示
             updateUserDisplay();
             
+            // 更新今日分享金额
+            updateTodayShareAmount();
+            
+            // 初始化分享次数显示
+            initShareCountDisplay();
+            
             // 默认显示查找行程
             switchTab('find');
         };
+        
+        // 数据备份功能 - 创建自动备份
+        function createDataBackup() {
+            try {
+                var backupData = {
+                    timestamp: new Date().toISOString(),
+                    rides: rides,
+                    passengers: passengers,
+                    products: products,
+                    businesses: businesses,
+                    users: users,
+                    shareRecords: shareRecords,
+                    paidContacts: paidContacts
+                };
+                
+                var backupKey = 'backup_' + new Date().getTime();
+                localStorage.setItem(backupKey, JSON.stringify(backupData));
+                
+                // 保留最近10个备份
+                var allKeys = Object.keys(localStorage).filter(function(key) {
+                    return key.startsWith('backup_');
+                });
+                
+                if (allKeys.length > 10) {
+                    allKeys.sort();
+                    for (var i = 0; i < allKeys.length - 10; i++) {
+                        localStorage.removeItem(allKeys[i]);
+                    }
+                }
+                
+                console.log('数据备份已创建：' + backupKey);
+            } catch (e) {
+                console.error('创建数据备份失败:', e);
+            }
+        }
+        
+        // 定期创建备份（每5分钟）
+        setInterval(function() {
+            if (currentUser) {
+                createDataBackup();
+            }
+        }, 5 * 60 * 1000);
     </script>
 </body>
 </html>

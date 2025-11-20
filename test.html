@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>湘M顺风车发布平台 - 测试版</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background-color: #ff5100;
+            color: white;
+            padding: 20px 0;
+            text-align: center;
+            border-radius: 5px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tabs {
+            display: flex;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab {
+            padding: 12px 24px;
+            cursor: pointer;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            border: 2px solid #dee2e6;
+            border-bottom: none;
+            border-radius: 15px 15px 0 0;
+            margin-right: 8px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .tab:hover {
+            background: linear-gradient(135deg, #fff5f0, #ffe8d6);
+            border-color: #ffccbc;
+            transform: translateY(-1px);
+        }
+        
+        .tab.active {
+            background: linear-gradient(135deg, #ff5100, #ff6b35);
+            color: white;
+            border-color: #ff5100;
+            margin-bottom: -2px;
+            font-weight: 600;
+            box-shadow: 0 4px 15px rgba(255, 81, 0, 0.3);
+        }
+        
+        .tab-content {
+            display: none;
+            background-color: white;
+            padding: 20px;
+            border-radius: 0 5px 5px 5px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>湘M顺风车发布平台 - 测试版</h1>
+            <p class="subtitle">绿色出行 · 共享资源 · 便利生活</p>
+        </header>
+        
+        <div class="tabs">
+            <div class="tab" onclick="switchTab('publish')">车找人</div>
+            <div class="tab" onclick="switchTab('find-car')">人找车</div>
+            <div class="tab active" onclick="switchTab('find')">查找行程</div>
+            <div class="tab" onclick="switchTab('my-rides')">我的行程</div>
+        </div>
+        
+        <div id="publish" class="tab-content">
+            <h2>发布车找人信息</h2>
+            <p>这里是车找人发布页面</p>
+        </div>
+        
+        <div id="find-car" class="tab-content">
+            <h2>发布人找车信息</h2>
+            <p>这里是 人找车发布页面</p>
+        </div>
+        
+        <div id="find" class="tab-content active">
+            <h2>查找行程</h2>
+            <p>这里是查找行程页面（默认首页）</p>
+        </div>
+        
+        <div id="my-rides" class="tab-content">
+            <h2>我的行程</h2>
+            <p>这里是我的行程页面</p>
+        </div>
+    </div>
+
+    <script>
+        // 切换标签页
+        function switchTab(tabId) {
+            // 隐藏所有标签内容
+            var allContents = document.querySelectorAll('.tab-content');
+            for (var i = 0; i < allContents.length; i++) {
+                allContents[i].classList.remove('active');
+            }
+            
+            // 取消所有标签的活动状态
+            var allTabs = document.querySelectorAll('.tab');
+            for (var i = 0; i < allTabs.length; i++) {
+                allTabs[i].classList.remove('active');
+            }
+            
+            // 显示选中的标签内容
+            var targetContent = document.getElementById(tabId);
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+            
+            // 设置选中标签的活动状态
+            var targetTab = null;
+            var tabs = document.querySelectorAll('.tab');
+            for (var i = 0; i < tabs.length; i++) {
+                if (tabs[i].getAttribute('onclick') && tabs[i].getAttribute('onclick').indexOf('switchTab(\'' + tabId + '\')') !== -1) {
+                    targetTab = tabs[i];
+                    break;
+                }
+            }
+            
+            if (targetTab) {
+                targetTab.classList.add('active');
+            }
+        }
+        
+        // 页面加载完成后的初始化
+        window.onload = function() {
+            console.log('页面加载完成，JavaScript正常工作');
+        };
+    </script>
+</body>
+</html>
