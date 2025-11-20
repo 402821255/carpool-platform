@@ -726,10 +726,10 @@
         <div class="tabs">
             <div class="tab" onclick="switchTab('publish')">车找人</div>
             <div class="tab" onclick="switchTab('find-car')">人找车</div>
-            <div class="tab active" onclick="switchTab('find')">查找行程</div>
             <div class="tab" onclick="switchTab('products')">农副产品</div>
             <div class="tab" onclick="switchTab('business')">商机发布</div>
-            <div class="tab" onclick="switchTab('my-rides')">我的行程</div>
+            <div class="tab active" onclick="switchTab('find')">🏠 首页</div>
+            <div class="tab" onclick="switchTab('my-rides')">我的发布</div>
             <div class="tab" onclick="switchTab('share')">分享赚奖励</div>
         </div>
         
@@ -856,17 +856,48 @@
         </div>
         
         <div id="find" class="tab-content active">
-            <h2>查找顺风车</h2>
+            <h2>🏠 湘M信息发布平台首页</h2>
+            <p style="color: #666; margin-bottom: 20px;">汇聚乡镇出行信息、农副产品、商业机会，便民服务平台</p>
             
             <div class="search-form">
-                <input type="text" id="search-input" placeholder="搜索出发地或目的地..." onkeypress="if(event.keyCode==13) searchRides()">
-                <button onclick="searchRides()">🔍 搜索</button>
+                <input type="text" id="search-input" placeholder="🔍 搜索出发地、目的地、产品、商机..." onkeypress="if(event.keyCode==13) searchAll()">
+                <button onclick="searchAll()">🔍 搜索</button>
             </div>
             
-            <div id="rides-container">
-                <div class="no-rides">
-                    <p style="font-size: 3rem; margin-bottom: 15px;">🚗</p>
-                    <p>暂无可用行程，请稍后再试或发布您的行程</p>
+            <!-- 信息分类显示 -->
+            <div style="margin: 30px 0;">
+                <h3 style="color: #ff5100; margin-bottom: 20px; border-bottom: 2px solid #ff5100; padding-bottom: 5px;">
+                    🚗 顺风车出行信息
+                </h3>
+                <div id="rides-container">
+                    <div class="no-rides">
+                        <p style="font-size: 2rem; margin-bottom: 10px;">🚗</p>
+                        <p>暂无顺风车信息</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin: 30px 0;">
+                <h3 style="color: #28a745; margin-bottom: 20px; border-bottom: 2px solid #28a745; padding-bottom: 5px;">
+                    🌾 农副产品信息
+                </h3>
+                <div id="products-container">
+                    <div class="no-rides">
+                        <p style="font-size: 2rem; margin-bottom: 10px;">🌾</p>
+                        <p>暂无农副产品信息</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin: 30px 0;">
+                <h3 style="color: #007bff; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 5px;">
+                    💼 商机合作信息
+                </h3>
+                <div id="businesses-container">
+                    <div class="no-rides">
+                        <p style="font-size: 2rem; margin-bottom: 10px;">💼</p>
+                        <p>暂无商机信息</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1036,11 +1067,12 @@
         </div>
         
         <div id="my-rides" class="tab-content">
-            <h2>我的行程</h2>
+            <h2>我的发布</h2>
+            <p style="color: #666; margin-bottom: 20px;">查看您发布的所有信息，包括顺风车、农副产品和商机信息</p>
             <div id="my-rides-container">
                 <div class="no-rides">
-                    <p style="font-size: 3rem; margin-bottom: 15px;">👤</p>
-                    <p>您还没有发布过行程</p>
+                    <p style="font-size: 3rem; margin-bottom: 15px;">📝</p>
+                    <p>您还没有发布过任何信息</p>
                 </div>
             </div>
         </div>
@@ -1228,12 +1260,12 @@
                 }
             }
             
-            // 如果是查找行程标签，刷新列表
+            // 如果是首页标签，刷新所有信息列表
             if (tabId === 'find') {
-                displayRides();
+                displayAllInfo();
             }
             
-            // 如果是我的行程标签，刷新列表
+            // 如果是我的发布标签，刷新列表
             if (tabId === 'my-rides') {
                 displayMyRides();
             }
@@ -1282,8 +1314,9 @@
             // 清空表单
             event.target.reset();
             
-            // 刷新我的行程页面
+            // 刷新显示
             displayMyRides();
+            displayAllInfo();
         }
         
         // 发布人找车信息
@@ -1329,8 +1362,9 @@
             // 清空表单
             event.target.reset();
             
-            // 刷新我的行程页面
+            // 刷新显示
             displayMyRides();
+            displayAllInfo();
         }
         
         // 发布农副产品
@@ -1368,6 +1402,9 @@
             
             // 清空表单
             event.target.reset();
+            
+            // 刷新首页显示
+            displayAllInfo();
         }
         
         // 发布商机信息
@@ -1404,6 +1441,9 @@
             
             // 清空表单
             event.target.reset();
+            
+            // 刷新首页显示
+            displayAllInfo();
         }
         
         // 搜索行程
@@ -1508,6 +1548,118 @@
             ridesContainer.innerHTML = html;
         }
         
+        // 显示首页所有信息
+        function displayAllInfo() {
+            displayRides();
+            displayProducts();
+            displayBusinesses();
+        }
+        
+        // 显示农副产品信息
+        function displayProducts() {
+            var productsContainer = document.getElementById('products-container');
+            
+            if (products.length === 0) {
+                productsContainer.innerHTML = '<div class="no-rides"><p style="font-size: 2rem; margin-bottom: 10px;">🌾</p><p>暂无农副产品信息</p></div>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < products.length; i++) {
+                var product = products[i];
+                
+                html += '<div class="ride-card">';
+                html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+                html += '<h3 style="color: #28a745; margin: 0;">🌾 ' + product.name + '</h3>';
+                html += '<span style="background: #28a745; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">' + getCategoryName(product.category) + '</span>';
+                html += '</div>';
+                
+                html += '<p><strong>供应数量：</strong>' + product.quantity + '</p>';
+                html += '<p><strong>预期价格：</strong>' + product.price + '</p>';
+                html += '<p><strong>产品产地：</strong>' + product.location + '</p>';
+                
+                if (product.harvest) {
+                    html += '<p><strong>采收时间：</strong>' + product.harvest + '</p>';
+                }
+                
+                if (product.quality) {
+                    html += '<p><strong>品质等级：</strong>' + getQualityName(product.quality) + '</p>';
+                }
+                
+                if (product.description) {
+                    html += '<p><strong>产品描述：</strong>' + product.description + '</p>';
+                }
+                
+                if (product.contact && product.phone) {
+                    html += '<p><strong>联系人：</strong>' + product.contact + ' (' + formatProductPhone(product, i) + ')</p>';
+                }
+                
+                if (product.wechat) {
+                    html += '<p><strong>微信号：</strong>' + product.wechat + '</p>';
+                }
+                
+                if (product.publishTime) {
+                    html += '<p style="color: #666; font-size: 0.9rem;"><strong>发布时间：</strong>' + product.publishTime + '</p>';
+                }
+                
+                html += '</div>';
+            }
+            
+            productsContainer.innerHTML = html;
+        }
+        
+        // 显示商机信息
+        function displayBusinesses() {
+            var businessesContainer = document.getElementById('businesses-container');
+            
+            if (businesses.length === 0) {
+                businessesContainer.innerHTML = '<div class="no-rides"><p style="font-size: 2rem; margin-bottom: 10px;">💼</p><p>暂无商机信息</p></div>';
+                return;
+            }
+            
+            var html = '';
+            for (var i = 0; i < businesses.length; i++) {
+                var business = businesses[i];
+                
+                html += '<div class="ride-card">';
+                html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+                html += '<h3 style="color: #007bff; margin: 0;">💼 ' + business.title + '</h3>';
+                html += '<span style="background: #007bff; color: white; padding: 3px 8px; border-radius: 12px; font-size: 0.8rem;">' + getBusinessTypeName(business.type) + '</span>';
+                html += '</div>';
+                
+                html += '<p><strong>投资金额：</strong>' + getInvestmentName(business.investment) + '</p>';
+                html += '<p><strong>所在地区：</strong>' + business.location + '</p>';
+                
+                if (business.expiry) {
+                    html += '<p><strong>有效期限：</strong>' + business.expiry + '</p>';
+                }
+                
+                if (business.urgency) {
+                    html += '<p><strong>紧急程度：</strong>' + getUrgencyName(business.urgency) + '</p>';
+                }
+                
+                if (business.description) {
+                    html += '<p><strong>详细说明：</strong>' + business.description + '</p>';
+                }
+                
+                if (business.contact && business.phone) {
+                    html += '<p><strong>联系人：</strong>' + business.contact + ' (' + formatBusinessPhone(business, i) + ')</p>';
+                }
+                
+                if (business.email) {
+                    html += '<p><strong>邮箱地址：</strong>' + business.email + '</p>';
+                }
+                
+                if (business.publishTime) {
+                    html += '<p style="color: #666; font-size: 0.9rem;"><strong>发布时间：</strong>' + business.publishTime + '</p>';
+                }
+                
+                html += '</div>';
+            }
+            
+            businessesContainer.innerHTML = html;
+        }
+        
         // 显示行程列表
         function displayRides() {
             var ridesContainer = document.getElementById('rides-container');
@@ -1589,9 +1741,10 @@
         // 显示我的行程
         function displayMyRides() {
             var myRidesContainer = document.getElementById('my-rides-container');
-            var allRides = [];
+            var html = '';
             
-            // 合并所有行程数据
+            // 显示顺风车信息
+            var allRides = [];
             if (rides.length > 0) {
                 allRides = allRides.concat(rides);
             }
@@ -1599,70 +1752,104 @@
                 allRides = allRides.concat(passengers);
             }
             
-            if (allRides.length === 0) {
-                myRidesContainer.innerHTML = '<div class="no-rides"><p style="font-size: 3rem; margin-bottom: 15px;">👤</p><p>您还没有发布过行程</p></div>';
-                return;
-            }
-            
-            // 显示行程列表
-            var html = '';
-            for (var i = 0; i < allRides.length; i++) {
-                var ride = allRides[i];
-                var typeIcon = ride.type === 'car-find-passenger' ? '🚗' : '🚶';
-                var typeName = ride.type === 'car-find-passenger' ? '车找人' : '人找车';
-                
-                html += '<div class="ride-card">';
-                html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
-                html += '<h3 style="color: #ff5100; margin: 0;">' + typeIcon + ' ' + typeName + '</h3>';
-                html += '<button onclick="deleteRide(\'' + ride.type + '\', ' + i + ')" style="background: #dc3545; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem;">删除</button>';
-                html += '</div>';
-                
-                if (ride.departure && ride.destination) {
-                    html += '<p><strong>路线：</strong>' + ride.departure + ' → ' + ride.destination + '</p>';
-                }
-                
-                if (ride.date && ride.time) {
-                    html += '<p><strong>时间：</strong>' + ride.date + ' ' + ride.time + '</p>';
-                }
-                
-                if (ride.seats) {
-                    html += '<p><strong>座位：</strong>' + ride.seats + '个</p>';
-                }
-                
-                if (ride.count) {
-                    html += '<p><strong>人数：</strong>' + ride.count + '人</p>';
-                }
-                
-                if (ride.price) {
-                    html += '<p><strong>费用：</strong>' + ride.price + '元</p>';
-                }
-                
-                if (ride.budget) {
-                    html += '<p><strong>预算：</strong>' + ride.budget + '元</p>';
-                }
-                
-                if (ride.name && ride.phone) {
-                    // 在"我的行程"中显示完整号码，因为是自己发布的
-                    var isOwnRide = currentUser && ride.publisher === currentUser.username;
-                    if (isOwnRide) {
-                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + ride.phone + ')</p>';
-                    } else {
-                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + formatPhone(ride, i, 'my') + ')</p>';
+            if (allRides.length > 0) {
+                html += '<h3 style="color: #ff5100; margin-bottom: 15px; border-bottom: 2px solid #ff5100; padding-bottom: 5px;">🚗 我的顺风车信息</h3>';
+                for (var i = 0; i < allRides.length; i++) {
+                    var ride = allRides[i];
+                    var typeIcon = ride.type === 'car-find-passenger' ? '🚗' : '🚶';
+                    var typeName = ride.type === 'car-find-passenger' ? '车找人' : '人找车';
+                    
+                    html += '<div class="ride-card">';
+                    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+                    html += '<h4 style="color: #ff5100; margin: 0;">' + typeIcon + ' ' + typeName + '</h4>';
+                    html += '<button onclick="deleteRide(\'' + ride.type + '\', ' + i + ')" style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; border: none; cursor: pointer;">删除</button>';
+                    html += '</div>';
+                    
+                    if (ride.departure && ride.destination) {
+                        html += '<p><strong>路线：</strong>' + ride.departure + ' → ' + ride.destination + '</p>';
                     }
+                    
+                    if (ride.date && ride.time) {
+                        html += '<p><strong>时间：</strong>' + ride.date + ' ' + ride.time + '</p>';
+                    }
+                    
+                    if (ride.price || ride.budget) {
+                        html += '<p><strong>费用：</strong>' + (ride.price || ride.budget) + '元</p>';
+                    }
+                    
+                    if (ride.name && ride.phone) {
+                        html += '<p><strong>联系人：</strong>' + ride.name + ' (' + ride.phone + ')</p>';
+                    }
+                    
+                    if (ride.publishTime) {
+                        html += '<p style="color: #666; font-size: 0.9rem;"><strong>发布时间：</strong>' + ride.publishTime + '</p>';
+                    }
+                    
+                    html += '</div>';
                 }
-                
-                if (ride.notes) {
-                    html += '<p><strong>备注：</strong>' + ride.notes + '</p>';
-                }
-                
-                if (ride.publishTime) {
-                    html += '<p style="color: #666; font-size: 0.9rem;"><strong>发布时间：</strong>' + ride.publishTime + '</p>';
-                }
-                
-                html += '</div>';
             }
             
-            myRidesContainer.innerHTML = html;
+            // 显示农副产品信息
+            if (products.length > 0) {
+                html += '<h3 style="color: #28a745; margin: 30px 0 15px 0; border-bottom: 2px solid #28a745; padding-bottom: 5px;">🌾 我的农副产品</h3>';
+                for (var i = 0; i < products.length; i++) {
+                    var product = products[i];
+                    
+                    html += '<div class="ride-card">';
+                    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+                    html += '<h4 style="color: #28a745; margin: 0;">🌾 ' + product.name + '</h4>';
+                    html += '<button onclick="deleteProduct(' + i + ')" style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; border: none; cursor: pointer;">删除</button>';
+                    html += '</div>';
+                    
+                    html += '<p><strong>供应数量：</strong>' + product.quantity + '</p>';
+                    html += '<p><strong>预期价格：</strong>' + product.price + '</p>';
+                    html += '<p><strong>产品产地：</strong>' + product.location + '</p>';
+                    
+                    if (product.contact && product.phone) {
+                        html += '<p><strong>联系人：</strong>' + product.contact + ' (' + product.phone + ')</p>';
+                    }
+                    
+                    if (product.publishTime) {
+                        html += '<p style="color: #666; font-size: 0.9rem;"><strong>发布时间：</strong>' + product.publishTime + '</p>';
+                    }
+                    
+                    html += '</div>';
+                }
+            }
+            
+            // 显示商机信息
+            if (businesses.length > 0) {
+                html += '<h3 style="color: #007bff; margin: 30px 0 15px 0; border-bottom: 2px solid #007bff; padding-bottom: 5px;">💼 我的商机信息</h3>';
+                for (var i = 0; i < businesses.length; i++) {
+                    var business = businesses[i];
+                    
+                    html += '<div class="ride-card">';
+                    html += '<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">';
+                    html += '<h4 style="color: #007bff; margin: 0;">💼 ' + business.title + '</h4>';
+                    html += '<button onclick="deleteBusiness(' + i + ')" style="background: #dc3545; color: white; padding: 5px 10px; border-radius: 5px; font-size: 0.8rem; border: none; cursor: pointer;">删除</button>';
+                    html += '</div>';
+                    
+                    html += '<p><strong>商机类型：</strong>' + getBusinessTypeName(business.type) + '</p>';
+                    html += '<p><strong>投资金额：</strong>' + getInvestmentName(business.investment) + '</p>';
+                    html += '<p><strong>所在地区：</strong>' + business.location + '</p>';
+                    
+                    if (business.contact && business.phone) {
+                        html += '<p><strong>联系人：</strong>' + business.contact + ' (' + business.phone + ')</p>';
+                    }
+                    
+                    if (business.publishTime) {
+                        html += '<p style="color: #666; font-size: 0.9rem;"><strong>发布时间：</strong>' + business.publishTime + '</p>';
+                    }
+                    
+                    html += '</div>';
+                }
+            }
+            
+            if (html === '') {
+                myRidesContainer.innerHTML = '<div class="no-rides"><p style="font-size: 3rem; margin-bottom: 15px;">📝</p><p>您还没有发布过任何信息</p></div>';
+            } else {
+                myRidesContainer.innerHTML = html;
+            }
         }
         
         // 删除行程
@@ -1681,9 +1868,48 @@
                     
                     // 刷新显示
                     displayMyRides();
+                    displayAllInfo();
                     alert('行程已删除！');
                 } catch (e) {
                     console.error('删除行程失败:', e);
+                    alert('删除失败，请重试！');
+                }
+            }
+        }
+        
+        // 删除农副产品
+        function deleteProduct(index) {
+            if (confirm('确定要删除这个农副产品信息吗？删除后无法恢复！')) {
+                try {
+                    products.splice(index, 1);
+                    localStorage.setItem('products', JSON.stringify(products));
+                    console.log('农副产品信息已删除，剩余：' + products.length + ' 条');
+                    
+                    // 刷新显示
+                    displayMyRides();
+                    displayAllInfo();
+                    alert('农副产品信息已删除！');
+                } catch (e) {
+                    console.error('删除农副产品失败:', e);
+                    alert('删除失败，请重试！');
+                }
+            }
+        }
+        
+        // 删除商机信息
+        function deleteBusiness(index) {
+            if (confirm('确定要删除这个商机信息吗？删除后无法恢复！')) {
+                try {
+                    businesses.splice(index, 1);
+                    localStorage.setItem('businesses', JSON.stringify(businesses));
+                    console.log('商机信息已删除，剩余：' + businesses.length + ' 条');
+                    
+                    // 刷新显示
+                    displayMyRides();
+                    displayAllInfo();
+                    alert('商机信息已删除！');
+                } catch (e) {
+                    console.error('删除商机信息失败:', e);
                     alert('删除失败，请重试！');
                 }
             }
@@ -2492,8 +2718,10 @@
             // 初始化分享次数显示
             initShareCountDisplay();
             
-            // 默认显示查找行程
+            // 默认显示首页
             switchTab('find');
+            // 初始加载所有信息
+            displayAllInfo();
         };
         
         // 数据备份功能 - 创建自动备份
@@ -2537,6 +2765,249 @@
                 createDataBackup();
             }
         }, 5 * 60 * 1000);
+        
+        // 获取产品类别名称
+        function getCategoryName(category) {
+            var categories = {
+                'vegetables': '新鲜蔬菜',
+                'fruits': '时令水果',
+                'grains': '粮食杂粮',
+                'livestock': '禽畜产品',
+                'aquatic': '水产海鲜',
+                'processed': '加工食品',
+                'handmade': '手工制品',
+                'other': '其他产品'
+            };
+            return categories[category] || category;
+        }
+        
+        // 获取品质等级名称
+        function getQualityName(quality) {
+            var qualities = {
+                'organic': '有机认证',
+                'green': '绿色无公害',
+                'ecological': '生态种植',
+                'traditional': '传统种植',
+                'standard': '常规标准'
+            };
+            return qualities[quality] || quality;
+        }
+        
+        // 获取商机类型名称
+        function getBusinessTypeName(type) {
+            var types = {
+                'cooperation': '商业合作',
+                'investment': '投资招商',
+                'transfer': '店铺转让',
+                'equipment': '设备转让',
+                'recruitment': '招聘求职',
+                'procurement': '采购需求',
+                'service': '服务提供',
+                'other': '其他商机'
+            };
+            return types[type] || type;
+        }
+        
+        // 获取投资金额名称
+        function getInvestmentName(investment) {
+            var investments = {
+                'small': '1万元以下',
+                'medium': '1-5万元',
+                'large': '5-10万元',
+                'xlarge': '10万元以上',
+                'negotiable': '面议'
+            };
+            return investments[investment] || investment;
+        }
+        
+        // 获取紧急程度名称
+        function getUrgencyName(urgency) {
+            var urgencies = {
+                'urgent': '紧急',
+                'normal': '一般',
+                'relaxed': '不急'
+            };
+            return urgencies[urgency] || urgency;
+        }
+        
+        // 格式化产品电话号码显示
+        function formatProductPhone(product, index) {
+            var isOwnProduct = currentUser && product.contact === currentUser.username;
+            if (isOwnProduct) {
+                return product.phone;
+            }
+            
+            var contactKey = 'product_' + index;
+            var hasPaid = paidContacts.some(function(contact) {
+                return contact.key === contactKey && contact.username === currentUser.username;
+            });
+            
+            if (hasPaid || !currentUser) {
+                return product.phone;
+            } else {
+                return product.phone.substring(0, 3) + '****' + product.phone.substring(7) + 
+                       ' <button class="reveal-phone-btn" onclick="showPaymentModal(\'product\', ' + index + ')">查看</button>';
+            }
+        }
+        
+        // 格式化商机电话号码显示
+        function formatBusinessPhone(business, index) {
+            var isOwnBusiness = currentUser && business.contact === currentUser.username;
+            if (isOwnBusiness) {
+                return business.phone;
+            }
+            
+            var contactKey = 'business_' + index;
+            var hasPaid = paidContacts.some(function(contact) {
+                return contact.key === contactKey && contact.username === currentUser.username;
+            });
+            
+            if (hasPaid || !currentUser) {
+                return business.phone;
+            } else {
+                return business.phone.substring(0, 3) + '****' + business.phone.substring(7) + 
+                       ' <button class="reveal-phone-btn" onclick="showPaymentModal(\'business\', ' + index + ')">查看</button>';
+            }
+        }
+        
+        // 显示付费查看模态框
+        function showPaymentModal(type, index) {
+            currentViewingType = type;
+            currentViewingIndex = index;
+            document.getElementById('payment-modal').style.display = 'flex';
+        }
+        
+        // 模拟支付功能
+        function simulatePayment() {
+            if (!currentUser) {
+                alert('请先登录后再查看联系方式！');
+                hidePaymentModal();
+                showAuthModal();
+                return;
+            }
+            
+            var user = users.find(function(u) { return u.username === currentUser.username; });
+            if (!user) {
+                alert('用户信息错误，请重新登录！');
+                return;
+            }
+            
+            if (user.balance < 0.20) {
+                alert('余额不足！请联系管理员充值。');
+                hidePaymentModal();
+                return;
+            }
+            
+            // 扣除费用
+            user.balance -= 0.20;
+            localStorage.setItem('users', JSON.stringify(users));
+            
+            // 记录付费查看
+            var contactKey = currentViewingType + '_' + currentViewingIndex;
+            paidContacts.push({
+                username: currentUser.username,
+                key: contactKey,
+                time: new Date().toLocaleString(),
+                amount: 0.20
+            });
+            localStorage.setItem('paidContacts', JSON.stringify(paidContacts));
+            
+            alert('支付成功！联系方式已显示。');
+            hidePaymentModal();
+            
+            // 刷新显示
+            displayAllInfo();
+        }
+        
+        // 搜索所有信息
+        function searchAll() {
+            var searchTerm = document.getElementById('search-input').value.toLowerCase();
+            
+            if (!searchTerm) {
+                displayAllInfo();
+                return;
+            }
+            
+            // 搜索并显示结果
+            searchAndDisplayRides(searchTerm);
+            searchAndDisplayProducts(searchTerm);
+            searchAndDisplayBusinesses(searchTerm);
+        }
+        
+        // 搜索并显示行程
+        function searchAndDisplayRides(searchTerm) {
+            var ridesContainer = document.getElementById('rides-container');
+            var allRides = [];
+            
+            if (rides.length > 0) {
+                allRides = allRides.concat(rides);
+            }
+            if (passengers.length > 0) {
+                allRides = allRides.concat(passengers);
+            }
+            
+            var searchResults = allRides.filter(function(ride) {
+                return [ride.departure, ride.destination, ride.name, ride.notes].some(function(field) {
+                    return field && field.toLowerCase().includes(searchTerm);
+                });
+            });
+            
+            displaySearchResults(ridesContainer, searchResults, '顺风车', '🚗');
+        }
+        
+        // 搜索并显示产品
+        function searchAndDisplayProducts(searchTerm) {
+            var productsContainer = document.getElementById('products-container');
+            var searchResults = products.filter(function(product) {
+                return [product.name, product.location, product.description, product.contact].some(function(field) {
+                    return field && field.toLowerCase().includes(searchTerm);
+                });
+            });
+            
+            displaySearchResults(productsContainer, searchResults, '农副产品', '🌾');
+        }
+        
+        // 搜索并显示商机
+        function searchAndDisplayBusinesses(searchTerm) {
+            var businessesContainer = document.getElementById('businesses-container');
+            var searchResults = businesses.filter(function(business) {
+                return [business.title, business.location, business.description, business.contact].some(function(field) {
+                    return field && field.toLowerCase().includes(searchTerm);
+                });
+            });
+            
+            displaySearchResults(businessesContainer, searchResults, '商机信息', '💼');
+        }
+        
+        // 显示搜索结果
+        function displaySearchResults(container, results, typeName, icon) {
+            if (results.length === 0) {
+                container.innerHTML = '<div class="no-rides"><p style="font-size: 2rem; margin-bottom: 10px;">' + icon + '</p><p>没有找到相关的' + typeName + '信息</p></div>';
+                return;
+            }
+            
+            // 调用相应的显示函数来显示结果
+            if (container.id === 'rides-container') {
+                // 临时保存原始数据并显示搜索结果
+                var originalRides = rides;
+                var originalPassengers = passengers;
+                rides = results.filter(function(r) { return r.type === 'car-find-passenger'; });
+                passengers = results.filter(function(r) { return r.type === 'passenger-find-car'; });
+                displayRides();
+                rides = originalRides;
+                passengers = originalPassengers;
+            } else if (container.id === 'products-container') {
+                var originalProducts = products;
+                products = results;
+                displayProducts();
+                products = originalProducts;
+            } else if (container.id === 'businesses-container') {
+                var originalBusinesses = businesses;
+                businesses = results;
+                displayBusinesses();
+                businesses = originalBusinesses;
+            }
+        }
     </script>
 </body>
 </html>
