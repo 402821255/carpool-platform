@@ -849,6 +849,18 @@
             </div>
             
             <div style="margin: 30px 0;">
+                <h3 style="color: #17a2b8; margin-bottom: 20px; border-bottom: 2px solid #17a2b8; padding-bottom: 5px;">
+                    🚶 人找车需求信息
+                </h3>
+                <div id="passengers-container">
+                    <div class="no-rides">
+                        <p style="font-size: 2rem; margin-bottom: 10px;">🚶</p>
+                        <p>暂无人找车信息</p>
+                    </div>
+                </div>
+            </div>
+            
+            <div style="margin: 30px 0;">
                 <h3 style="color: #28a745; margin-bottom: 20px; border-bottom: 2px solid #28a745; padding-bottom: 5px;">
                     🥬 农副产品信息
                 </h3>
@@ -1527,6 +1539,7 @@
                 notes: document.getElementById('notes').value,
                 name: document.getElementById('name').value,
                 phone: document.getElementById('phone').value,
+                userId: currentUser ? currentUser.username : null,
                 type: 'ride',
                 timestamp: new Date().toLocaleString()
             };
@@ -1562,6 +1575,7 @@
                 notes: document.getElementById('passenger-notes').value,
                 name: document.getElementById('passenger-name').value,
                 phone: document.getElementById('passenger-phone').value,
+                userId: currentUser ? currentUser.username : null,
                 type: 'passenger',
                 timestamp: new Date().toLocaleString()
             };
@@ -1599,6 +1613,7 @@
                 contact: document.getElementById('product-contact').value,
                 phone: document.getElementById('product-phone').value,
                 wechat: document.getElementById('product-wechat').value,
+                userId: currentUser ? currentUser.username : null,
                 type: 'product',
                 timestamp: new Date().toLocaleString()
             };
@@ -1635,7 +1650,8 @@
                 contact: document.getElementById('business-contact').value,
                 phone: document.getElementById('business-phone').value,
                 email: document.getElementById('business-email').value,
-                type: 'business',
+                userId: currentUser ? currentUser.username : null,
+                businessType: 'business',
                 timestamp: new Date().toLocaleString()
             };
             
@@ -1867,10 +1883,10 @@
             
             // 合并所有发布的信息
             const allMyRides = [
-                ...rides.filter(ride => ride.name === currentUser.username),
-                ...passengers.filter(passenger => passenger.name === currentUser.username),
-                ...products.filter(product => product.contact === currentUser.username),
-                ...businesses.filter(business => business.contact === currentUser.username)
+                ...rides.filter(ride => ride.userId === currentUser.username),
+                ...passengers.filter(passenger => passenger.userId === currentUser.username),
+                ...products.filter(product => product.userId === currentUser.username),
+                ...businesses.filter(business => business.userId === currentUser.username)
             ];
             
             if (allMyRides.length === 0) {
@@ -1886,19 +1902,21 @@
             container.innerHTML = allMyRides.map(item => {
                 let icon, title, typeLabel;
                 
-                if (item.type === 'ride') {
+                const itemType = item.type || item.businessType;
+                
+                if (itemType === 'ride') {
                     icon = '🚗';
                     title = '车找人';
                     typeLabel = `${item.departure} → ${item.destination} (${item.date} ${item.time})`;
-                } else if (item.type === 'passenger') {
+                } else if (itemType === 'passenger') {
                     icon = '🚶';
                     title = '人找车';
                     typeLabel = `${item.departure} → ${item.destination} (${item.date} ${item.time})`;
-                } else if (item.type === 'product') {
+                } else if (itemType === 'product') {
                     icon = '🥬';
                     title = '农副产品';
                     typeLabel = item.name;
-                } else if (item.type === 'business') {
+                } else if (itemType === 'business') {
                     icon = '💼';
                     title = '商场信息';
                     typeLabel = item.title;
@@ -1912,7 +1930,7 @@
                                 <div style="color: #666; margin-top: 5px;">${typeLabel}</div>
                             </div>
                             <div>
-                                <button class="user-btn" style="background: #dc3545;" onclick="deleteMyItem('${item.type}', '${item.id}')">删除</button>
+                                <button class="user-btn" style="background: #dc3545;" onclick="deleteMyItem('${item.type || item.businessType}', '${item.id}')">删除</button>
                             </div>
                         </div>
                     </div>
@@ -1921,24 +1939,24 @@
         }
         
         // 删除我的发布
-        async function deleteMyItem(type, id) {
+        async function deleteMyItem(itemType, id) {
             if (!confirm('确定要删除这条信息吗？')) {
                 return;
             }
             
-            if (type === 'ride') {
+            if (itemType === 'ride') {
                 rides = rides.filter(ride => ride.id !== parseInt(id));
                 await databaseService.saveData('rides', rides);
                 displayRides();
-            } else if (type === 'passenger') {
+            } else if (itemType === 'passenger') {
                 passengers = passengers.filter(passenger => passenger.id !== parseInt(id));
                 await databaseService.saveData('passengers', passengers);
                 displayPassengers();
-            } else if (type === 'product') {
+            } else if (itemType === 'product') {
                 products = products.filter(product => product.id !== parseInt(id));
                 await databaseService.saveData('products', products);
                 displayProducts();
-            } else if (type === 'business') {
+            } else if (itemType === 'business') {
                 businesses = businesses.filter(business => business.id !== parseInt(id));
                 await databaseService.saveData('businesses', businesses);
                 displayBusinesses();
